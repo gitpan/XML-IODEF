@@ -30,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 our $MAX_ITER = 20;
 
@@ -297,7 +297,8 @@ my $IODEF_DTD = {
     #
 
     "AdditionalData" => {
-	ATTRIBUTES  => { "type" => ["string", "boolean", "byte", "character", "date-time",
+	ATTRIBUTES  => { "restriction" => [ "public", "need-to-know", "private", "default" ],
+			 "type" => ["string", "boolean", "byte", "character", "date-time",
 				    "integer", "ntpstamp", "portlist", "real", "xml"],
 			 "meaning" => [],
 		       },
