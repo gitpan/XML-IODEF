@@ -30,9 +30,9 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-our $MAX_ITER = 10;
+our $MAX_ITER = 20;
 
 
 
@@ -311,9 +311,9 @@ my $IODEF_DTD = {
     "Contact" => { 
 	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ],
 			"role" => [ "creator", "admin", "tech", "irt", "cc" ],
-			"type" => [ "person", "organisation" ]
+			"type" => [ "person", "organization" ]
 		      },
-	CHILDREN   => [ "?Name", "*Description", "*RegistryHandle", "?PostalAddress",
+	CHILDREN   => [ "?name", "*Description", "*RegistryHandle", "?PostalAddress",
 			"*Email", "*Telephone", "?Fax", "?Timezone", "*Contact" ],
     },
 
@@ -585,15 +585,14 @@ my $IODEF_DTD = {
 	CONTENT    => PCDATA,
     },
 
-#    "Incidentident" => {
-#	ATTRIBUTES  => { "analyzerid" => [] },
-#	CONTENT     => PCDATA,
-#    },
+    "IncidentID" => {
+	ATTRIBUTES  => { "name" => [] },
+	CONTENT     => PCDATA,
+    },
 
     #
     # Simple elements with no sub-elements and no attributes
     #
-    "IncidentID"      => { CONTENT => PCDATA },
     "Description"     => { CONTENT => PCDATA },
 
     "Name"	      => { CONTENT => PCDATA },
@@ -999,7 +998,7 @@ sub new {
     
     $iodef->{"DOM"} = $doc;
 
-#    $iodef->add("", $IODEF_VERSION);
+    $iodef->add("version", $IODEF_VERSION);
 
     return $iodef;
 }

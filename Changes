@@ -2,3 +2,6 @@ Revision history for Perl extension XML::IODEF.
 
 0.01 2003/07/24
 	- First release, modified from XML::IDMEF
+
+0.02 2003/07/31
+	- Changes to make more DTD correct, adds version="1.0" by default

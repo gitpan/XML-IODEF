@@ -129,7 +129,7 @@ eval {
     $iodef->add("Incidentrestriction", "need-to-know");
     $iodef->add("IncidentIncidentDataContactrole", "admin");
     check("add() did not perform as expected when adding attributes.")
-	if ($iodef->out !~ '.*<IODEF-Document><Incident purpose="handling" restriction="need-to-know"><IncidentData><Contact role="admin"/></IncidentData></Incident></IODEF-Document>.*');
+	if ($iodef->out !~ '.*<IODEF-Document version="1.0"><Incident purpose="handling" restriction="need-to-know"><IncidentData><Contact role="admin"/></IncidentData></Incident></IODEF-Document>.*');
 };
 check($@);
 
@@ -155,10 +155,10 @@ check($@);
 title "Test adding contents...";
 eval {
     $iodef->add("IncidentIncidentID","#12345");
-    $iodef->add("IncidentIncidentDataContactName","Joe Bloggs");
+    $iodef->add("IncidentIncidentDataContactname","Joe Bloggs");
     $iodef->add("IncidentIncidentDataExpectation","Do something");
     check("add() did not perform as expected when adding contents.")
-	if ($iodef->out !~ '.*<Incident purpose="handling" restriction="need-to-know"><IncidentID>#12345</IncidentID><IncidentData><Contact><Name>Joe Bloggs</Name></Contact><Expectation/><EventData/><EventData><Contact/></EventData></IncidentData><IncidentData><Contact role="admin"/></IncidentData></Incident>.*')
+	if ($iodef->out !~ '.*<Incident purpose="handling" restriction="need-to-know"><IncidentID>#12345</IncidentID><IncidentData><Contact><name>Joe Bloggs</name></Contact><Expectation/><EventData/><EventData><Contact/></EventData></IncidentData><IncidentData><Contact role="admin"/></IncidentData></Incident>.*')
 };
 check($@);
     
@@ -215,7 +215,7 @@ $iodef->add("IncidentAdditionalDatameaning", "data1");
 $iodef->add("IncidentAdditionalData", "value2", "data2");   
 $iodef->add("IncidentAdditionalData", "value3", "data3", "string");
 check("add() did not handle AdditionalData properly.")
-    if ($iodef->out() !~ '.*<IODEF-Document><Incident><AdditionalData meaning="data3" type="string">value3</AdditionalData><AdditionalData meaning="data2" type="string">value2</AdditionalData><AdditionalData meaning="data1">value1</AdditionalData><AdditionalData>value0</AdditionalData></Incident></IODEF-Document>.*');
+    if ($iodef->out() !~ '.*<IODEF-Document version="1.0"><Incident><AdditionalData meaning="data3" type="string">value3</AdditionalData><AdditionalData meaning="data2" type="string">value2</AdditionalData><AdditionalData meaning="data1">value1</AdditionalData><AdditionalData>value0</AdditionalData></Incident></IODEF-Document>.*');
 
 ok(1);
 
@@ -316,7 +316,7 @@ $iodef = new XML::IODEF;
 
 $iodef->add("IncidentAdditionalData", "$string1");
 check("add() did not handle special characters encoding according to XML specs.")
-    if ($iodef->out() !~ '.*<IODEF-Document><Incident><AdditionalData>hi bob&amp;&quot;&amp;amp;&amp;#x0065</AdditionalData></Incident></IODEF-Document>.*');
+    if ($iodef->out() !~ '.*<IODEF-Document version="1.0"><Incident><AdditionalData>hi bob&amp;&quot;&amp;amp;&amp;#x0065</AdditionalData></Incident></IODEF-Document>.*');
 
 ok(1);
 
@@ -335,7 +335,7 @@ $iodef->add("IncidentIncidentDataExpectation",  "Do Something");
 $iodef->add("IncidentIncidentDataDescription", "The second description");
 $iodef->add("IncidentIncidentDataExpectation",  "Please, and again");
 check("add() call bug still here!")
-    if ($iodef->out() !~ '.*<IODEF-Document><Incident><IncidentData><Description>The second description</Description><Description>The first description</Description><Expectation/><Expectation/></IncidentData></Incident></IODEF-Document>.*');
+    if ($iodef->out() !~ '.*<IODEF-Document version="1.0"><Incident><IncidentData><Description>The second description</Description><Description>The first description</Description><Expectation/><Expectation/></IncidentData></Incident></IODEF-Document>.*');
 
 ok(1);
 
