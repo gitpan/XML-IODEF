@@ -5,3 +5,14 @@ Revision history for Perl extension XML::IODEF.
 
 0.02 2003/07/31
 	- Changes to make more DTD correct, adds version="1.0" by default
+
+0.03 2003/08
+	- Fixed Reporttime
+
+0.04 2003/12/15
+	- Changed Reporttime to use 
+		    YYYY-MM-DDTHH:MM:SS[+|-]HHMM
+ 		     |    |  | ||  |  |      |
+    		     |    |  | T|  |  sec    |
+                     year |  day|  min       dif to GMT in hours and minutes
+         		month hour(0..23)

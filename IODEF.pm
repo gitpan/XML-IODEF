@@ -30,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 our $MAX_ITER = 20;
 
@@ -1911,7 +1911,7 @@ sub create_time {
 
     add($iodef, 
 	$name."ReportTime", 
-	sprintf("%04d-%02d-%02d-T%02d:%02d:%02dZ",
+	sprintf("%04d-%02d-%02dT%02d:%02d:%02d+0000",
 		$year, $mon, $mday, $hour, $min, $sec));
 
     # seconds between 1900-01-01 and 1970-01-01

@@ -197,7 +197,7 @@ eval {
     $iodef->create_time(125500);
 
     check("create_time() returned a wrong time tag.")
-    if ($iodef->out() !~ '.*<Incident><IncidentData><ReportTime ntpstamp="0x83ac68bc.0x0">1970-01-02-T10:51:40Z</ReportTime></IncidentData></Incident>.*')
+    if ($iodef->out() !~ '.*<Incident><IncidentData><ReportTime ntpstamp="0x83ac68bc.0x0">1970-01-02T10:51:40\+0000</ReportTime></IncidentData></Incident>.*')
 };
 check($@);
 
