@@ -30,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 our $MAX_ITER = 20;
 
@@ -1902,8 +1902,7 @@ sub create_time {
     my $iodef = shift;
     my $utc   = shift || time(); 
 
-    my $name = $iodef->get_type();
-    $name = "IncidentIncidentData" if (!defined $name);
+    my $name = "IncidentIncidentData";
 
     # add time stamp
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($utc);
