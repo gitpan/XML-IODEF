@@ -30,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 our $MAX_ITER = 20;
 
@@ -360,7 +360,9 @@ my $IODEF_DTD = {
     },
 
     "Classification" => {
-	ATTRIBUTES   => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
+	ATTRIBUTES   => { "restriction" => [ "public", "need-to-know", "private", "default" ],
+       			  "origin" => [ "bugtragid", "cve", "certcc", "vendor", "local", "other" ]
+		  	},
 	CHILDREN     => [ "1Name", "1Url" ],
     },
 
@@ -392,7 +394,7 @@ my $IODEF_DTD = {
 	ATTRIBUTES   => { "restriction" => [ "public", "need-to-know", "private", "default" ],
 			  "severity" => [ "low", "medium", "high" ],
 			  "metric"   => [ "labor", "elapsed", "downtime" ],
-			  "currency" => [ "GBP", "USD" ] 
+			  "currency" => [] 
 			},
         CONTENT      => PCDATA,
     },
@@ -559,14 +561,6 @@ my $IODEF_DTD = {
 	CONTENT     => PCDATA,
     },
 
-    "Impact" => {
-	ATTRIBUTES  => { "severity"   => ["low", "medium", "high"],
-			 "completion" => ["failed", "succeeded"],
-			 "type"       => ["admin", "dos", "file", "recon", "user", "other"],
-		     },
-	CONTENT     => PCDATA,
-    },
-
     "NodeRole" => {
 	ATTRIBUTES => { "category" => [ "client", "server-internal", "server-public",
 					"www", "mail", "messaging", "streaming", "voice",
@@ -591,6 +585,7 @@ my $IODEF_DTD = {
 	CONTENT     => PCDATA,
     },
 
+
     #
     # Simple elements with no sub-elements and no attributes
     #
@@ -598,7 +593,6 @@ my $IODEF_DTD = {
 
     "Name"	      => { CONTENT => PCDATA },
     "Description"     => { CONTENT => PCDATA },
-    "RegistryHandle"  => { CONTENT => PCDATA },
     "PostalAddress"   => { CONTENT => PCDATA },
     "Email"           => { CONTENT => PCDATA },
     "Telephone"       => { CONTENT => PCDATA },

@@ -17,6 +17,12 @@ Revision history for Perl extension XML::IODEF.
                      year |  day|  min       dif to GMT in hours and minutes
          		month hour(0..23)
 
-0.05 2004/01/05
+0.05 2004/02/05
 	- Fixed AdditionalData by adding restriction attribute
+
+0.06 2004/02/09	
+	- Removed extra RegistryHandle and Impact
+	- Made currency free text
+	- Added origin to Classification
+
 
