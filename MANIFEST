@@ -1,7 +1,9 @@
 Changes
-IODEF.pm
+lib/XML/IODEF.pm
+LICENSE
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 README
+t/XML-IODEF.t
 test.pl
 META.yml                                 Module meta-data (added by MakeMaker)

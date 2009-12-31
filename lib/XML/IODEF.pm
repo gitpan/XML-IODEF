@@ -1,4 +1,3 @@
-
 package XML::IODEF;
 
 # syntax cerbere
@@ -9,7 +8,7 @@ use warnings;
 # various includes
 use Carp;
 use XML::DOM;
-use Data::Dumper;
+use DateTime;
 
 # export, version, inheritance
 require Exporter;
@@ -30,7 +29,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.06';
+our $VERSION = '0.07_1';
 
 our $MAX_ITER = 20;
 
@@ -42,6 +41,7 @@ our $MAX_ITER = 20;
 ##
 ## Erwan Lemonnier - Proact Defcom - 2002/05
 ## Adapted to IODEF by John Green - JANET-CERT - 2003/07
+## Updated to RFC 5070 Release 2007 -- Wes Young 2010/01
 ##
 ## DESC:
 ##
@@ -57,11 +57,9 @@ our $MAX_ITER = 20;
 ##        use XML::IODEF;
 ##
 ##        my $iodef = new XML::IODEF();
-##        $iodef->create_ident();
 ##        $iodef->create_time();
 ##        $iodef->add("IncidentAdditionalData", "myvalue", "mymeaning"); 
 ##        $iodef->add("IncidentAdditionalData", byte_to_string($bytes), "binary-data", "byte");
-##        $iodef->add("IncidentAnalyzermodel", "myids");
 ##        print $iodef->out();
 ##
 ##    An interface to load and parse an IODEF message is also provided (with the
@@ -120,7 +118,6 @@ our $MAX_ITER = 20;
 ##    add             # add a field to IODEF message
 ##    get_type        # return type of IODEF message
 ##
-##    create_ident    # initialyze the Incidentident field witha unique id string
 ##    create_time     # initialize the CreateTime field with the current time
 ##
 ## EXPORTS:
@@ -257,389 +254,375 @@ my $IODEF_DTD = {
     # according to the list below:
  
     "IODEF-Document" => {
-	ATTRIBUTES  => { "version" => ["1.0"] },
-	CHILDREN    => [ "+Incident" ],
+		ATTRIBUTES  => { 
+            "version"               => ["1.0"], 
+            "lang"                  => [], 
+            "formatid"              => [],
+            "xmlns:iodef"           => [ "urn:ietf:params:xml:ns:iodef-1.0" ],
+            "xsi:schemaLocation"    => [ "urn:ietf:params:xmls:schema:iodef-1.0" ]
+        },
+		CHILDREN    => [ "+Incident" ],
     },
 
     "Incident" => {
-	ATTRIBUTES  => { "purpose"  => [ "handling", "statistics", "warning", "other" ],
-			 "restriction" => [ "public", "need-to-know", "private", "default" ]
-		       },
-	CHILDREN    => [ "1IncidentID", "?AlternativeIDs", "*IncidentData", "?RelatedActivity",
-			 "*AdditionalData" ],
+		ATTRIBUTES  => { "purpose"		=> [ "traceback", "mitigation", "reporting", "other", "ext-value" ],
+						 "ext-purpose"	=> [],
+						 "lang"			=> [],
+						 "restriction"	=> [ "public", "need-to-know", "private", "default" ]
+		},
+		CHILDREN    => [ "1IncidentID", "?AlternativeID", "?RelatedActivity", "?DetectTime",
+						 "?StartTime", "?EndTime", "1ReportTime", "*Description", "+Assessment", 
+						 "*Method", "+Contact", "*EventData", "?History", "*AdditionalData" ]
+	},
+	
+	"IncidentID"	=> {
+		ATTRIBUTES	=> {
+			"name"			=> [], 
+			"instance"		=> [],
+			"restriction"	=> [ "public", "need-to-know", "private", "default" ]
+		},
+		CONTENT		=> PCDATA
+	},
+	
+    "AlternativeID"	=> {
+        ATTRIBUTES  => {
+            "restriction"	=> [ "public", "need-to-know", "private", "default" ]   
+        },
+        CHILDREN    => ["+IncidentID"]
     },
     
-    #    
-    # IncidentData
-    #
-
-    "IncidentData" => {
-	 ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	 CHILDREN   => [ "*Description", "+Assessment", "*Method", "?DetectTime", "?StartTime",
-	 		 "?EndTime", "1ReportTime", "+Contact", "*Expectation", "?History",
-			 "*EventData", "*AdditionalData" ],
-    },
-
-    #
-    # EventData
-    #
-
-    "EventData" => {
-	 ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	 CHILDREN => [ "*Description", "+Assessment", "*Method", "?DetectTime", "?StartTime",
-	               "?EndTime", "+Contact", "?History", "*System", "?Record", 
-		       "*EventData", "*AdditionalData" ],
-    },
-
-
-    #
-    # Additional Data
-    #
-
-    "AdditionalData" => {
-	ATTRIBUTES  => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-			 "type" => ["string", "boolean", "byte", "character", "date-time",
-				    "integer", "ntpstamp", "portlist", "real", "xml"],
-			 "meaning" => [],
-		       },
-	CONTENT     => ANY,
-    }, 
-
-    #
-    # Contact
-    #
-
-    "Contact" => { 
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-			"role" => [ "creator", "admin", "tech", "irt", "cc" ],
-			"type" => [ "person", "organization" ]
-		      },
-	CHILDREN   => [ "?name", "*Description", "*RegistryHandle", "?PostalAddress",
-			"*Email", "*Telephone", "?Fax", "?Timezone", "*Contact" ],
-    },
-
-
-    "Analyzer" => {
-        ATTRIBUTES  => { "analyzerid"   => [], "manufacturer" => [], "model"        => [],
-			 "version"      => [], "class"        => [], "ostype"       => [],
-			 "osversion"    => [], 
-		     },
-	CHILDREN    => [ "?Node", "?Process" ],
-   },
-    
-    #
-    # Support elements used for providing info about entities
-    #
-
-    "AlternativeIDs" => {
-	ATTRIBUTES   => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	CHILDREN     => [ "+IncidentID" ],
-    },
-
     "RelatedActivity" => {
-	ATTRIBUTES    => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	CHILDREN      => [ "+IncidentID" ],
+        ATTRIBUTES    => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
+        CHILDREN      => [ "*IncidentID", "*URL" ],
     },
-
+    
+    "AdditionalData" => {
+        ATTRIBUTES  => { 
+            "dtype" => ["boolean", "byte", "character", "date-time", "integer", "portlist",
+                                     "real", "string", "file", "frame", "packet", "ipv4-packet", "ipv6-packet",
+                                     "path", "url", "csv", "winreg", "xml", "ext-value"],
+            "ext-dtype"    => [],
+            "meaning"      => [],
+            "formatid"     => [],
+            "restriction" => [ "public", "need-to-know", "private", "default" ],
+        },
+        CONTENT     => ANY,
+    }, 
+    
+    "Contact" => { 
+        ATTRIBUTES  => { "role"         => [ "creator", "admin", "tech", "irt", "cc", "ext-value" ],
+                         "ext-role"     => [],
+                         "type"         => [ "person", "organization", "ext-value" ],
+                         "ext-type"     => [],
+                         "restriction"  => [ "public", "need-to-know", "private", "default" ]
+        },
+        CHILDREN    => [ "?ContactName", "*Description", "*RegistryHandle","?PostalAddress","*Email",
+                         "*Telephone", "?Fax", "?Timezone", "*Contact", "*AdditionalData" ],
+    },
+    
     "RegistryHandle" => {
-	ATTRIBUTES   => { "type" => [ "internic", "apnic", "arin", "lacnic", "ripe", "ti", "local" ] },
-	CONTENT      => PCDATA,
-    },
-
-    "Expectation"  => {
-	ATTRIBUTES  => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-			"priority" => [ "low", "medium", "high" ],
-			"category" => [ "nothing", "contact-site", "contact-me", "block" ] 
-		       },
-	CHILDREN    => [ "+Description", "?StartTime", "?EndTime", "?Contact" ],
-    },
-
-    "Method"       => { 
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	CHILDREN    => [ "*Classification", "*Description" ],
-    },
-
-    "Classification" => {
-	ATTRIBUTES   => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-       			  "origin" => [ "bugtragid", "cve", "certcc", "vendor", "local", "other" ]
-		  	},
-	CHILDREN     => [ "1Name", "1Url" ],
-    },
-
-    "Assessment"  => {
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	CHILDREN   => [ "*Impact", "*TimeImpact", "*MonetaryImpact", "*LifeImpact", "?Confidence" ],
-    },
-
-    "Impact"       => {
-	ATTRIBUTES => {  "restriction" => [ "public", "need-to-know", "private", "default" ],
-			 "severity" => [ "low", "medium", "high" ],
-			 "completion" => [ "failed", "succeeded" ],
-			 "type"     => [ "admin", "dos", "file", "recon", "user", "none",
-			 		 "unknown", "other" ]
-		      },
-	CONTENT    => PCDATA,
-    },
-
-
-    "TimeImpact"   => {
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-			"severity" => [ "low", "medium", "high" ],
-			"metric"   => [ "labor", "elapsed", "downtime" ],
-			"units"    => [ "seconds", "minutes", "hours", "days" ] },
-	CONTENT    => PCDATA,
-    },
-
-    "MonetaryImpact" => {
-	ATTRIBUTES   => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-			  "severity" => [ "low", "medium", "high" ],
-			  "metric"   => [ "labor", "elapsed", "downtime" ],
-			  "currency" => [] 
-			},
+        ATTRIBUTES   => { 
+            "registry"      => [ "internic", "apnic", "arin", "lacnic", "ripe", "afrinic", "local", "ext-value" ],
+            "ext-registry"  => [],
+        },
         CONTENT      => PCDATA,
     },
-
-    "LifeImpact"     => {
-	ATTRIBUTES   => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-			  "severity" => [ "low", "medium", "high" ],
-			  "metric"   => [ "deaths", "injuries" ] },
-        CONTENT      => PCDATA,
-    },
-
-    "Confidence" => {
-	ATTRIBUTES => {  "restriction" => [ "public", "need-to-know", "private", "default" ],
-			  "rating" => [ "low", "medium", "high", "numeric", "unknown" ]
- 		      },
-        CONTENT    => PCDATA,
-    },
-
-    "History" => {
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	CHILDREN => [ "+HistoryItem" ],
-    },
-
-    "HistoryItem" => {
-	ATTRIBUTES => {  "restriction" => [ "public", "need-to-know", "private", "default" ],
-			 "type" => [ "triaged", "notification", "shared-info", "recieved-info",
-			             "remediation", "other" ] 
-		      },
-        CHILDREN   => [ "?IncidentID", "1DateTime", "+Description" ],
-    },
-
-    "System" => {
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ],
-		        "category" => [ "source", "target", "intermediate" ],
-			"interface" => [],
-			"spoofed" => [ "unknown", "yes", "no" ]
-		      },
-        CHILDREN => [ "1Node", "*User", "*Process", "*Service", "?FileList" ],
-    },
-   
-    "Record" => {
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	CHILDREN   => [ "+RecordData" ],
-    },
-
-    "RecordData" => {
-	ATTRIBUTES => { "restriction" => [ "public", "need-to-know", "private", "default" ] },
-	CHILDREN   => [ "?DateTime", "*Description", "?Analyzer", "+RecordItem" ],
-    },
-
-    "RecordItem" => {
-	ATTRIBUTES => { "type" => [ "boolean", "byte", "character", "date-time", "integer",
-				    "ntpstamp", "portlist", "real", "string", "file",
-				    "path", "url", "xml" ] },
-	CONTENT => ANY,
-    },
-
-    "Address" => {
-	ATTRIBUTES  => { "ident"     => [], "vlan-num"  => [], "vlan-name" => [],
-			 "category"  => [ "unknown", "atm", "e-mail", "lotus-notes", "mac", "sna",
-					  "vm", "ipv4-addr", "ipv4-addr-hex", "ipv4-net", "ipv4-net-mask",
-					  "ipv6-addr", "ipv6-addr-hex", "ipv6-net", "ipv6-net-mask" ],
-		       },
-	CHILDREN    => [ "1address", "?netmask" ],
-    },
-
-    "File" => {
-	ATTRIBUTES  => { "ident"    => [], "category" => ["current","original"], "fstype"   => [] },
-	CHILDREN    => [ "1name", "1path", "?create-time", "?modify-time", "?access-time", "?data-size",
-			 "?disk-size", "*FileAccess", "*Linkage", "?Inode" ],
-    },
-
-    "FileAccess" => {
-        CHILDREN    => [ "1UserId", "+permission" ],
-    },
-
-    "FileList" => {
-	CHILDREN    => [ "+File" ],
-    },
-
-    "Inode" => { 
-	CHILDREN    => ["?change-time", "?number", "?major-device", "?minor-device", "?c-major-device",
-			"?c-minor-device"],
-    },    
     
-    "Linkage" => {
-	ATTRIBUTES  => { "category" => ["hard-link", "mount-point", "reparse-point", "shortcut", 
-					"stream", "symbolic-link"] },
-	CHILDREN    => [ "1name", "1path" ], 
-# CHECK!  ignore File node: the DTD parser does not support recursive nodes
-    },
-
-    "Node" => {
-	ATTRIBUTES  => { "category" => [ "unknown", "ads", "afs", "coda", "dfs", "dns", "hosts", 
-					 "kerberos", "nds", "nis", "nisplus", "nt", "wfw"],
-			 "ident"    => [],
-		     },
-	CHILDREN    => [ "?Location", "?Name", "*Address", "?DateTime", "*NodeRole" ],
-    },
-
-    "Process" => {
-	ATTRIBUTES  => { "ident" => [] },
-	CHILDREN    => [ "1name", "?pid", "?path", "*arg", "*env" ],
+    "PostalAddress" => {
+        ATTRIBUTES  => {
+            "meaning"   => [],
+            "lang"      => [],
+        },
+        CONTENT => PCDATA
     },
     
-    "Service" => {
-	ATTRIBUTES  => { "ident" => [] },
-	CHILDREN    => [ "?name", "?port", "?portlist", "?protocol", "?SNMPService", "?WebService" ],
-    },
-
-    "SNMPService" => {
-	CHILDREN    => [ "?oid", "?community", "?securityName", "?contextName",
-			 "?contextEngineID", "?command" ],
+    "Email" => {
+        ATTRIBIUTES => {
+            "meaning"   => [],
+        },
+        CONTENT     => PCDATA
     },
     
-    "User" => {
-	ATTRIBUTES  => { "ident"    => [], "category" => ["unknown", "application", "os-device"] },
-	CHILDREN    => [ "+UserId" ],
-    },
-
-    "UserId" => {
-	ATTRIBUTES  => { "ident" => [],
-			 "type"  => [ "current-user", "original-user", "target-user", "user-privs",
-				      "current-group", "group-privs", "other-privs" ],
-		     },
-	CHILDREN    => [ "?name", "?number" ],
+    "Telephone" => {
+        ATTRIBUTES  => {
+            "meaning"   => [],
+        },
+        CONTENT => PCDATA
     },
     
-    "WebService" => {
-	CHILDREN    => [ "1url", "?cgi", "?http-method", "*arg" ],
-    },
-
-    #
-    # Simple elements with sub elements or attributes of a special nature
-    #
-
-    "Action" => {
-	ATTRIBUTES  => { "category" => ["block-installed", "notification-sent", "taken-offline", "other"] },
-	CONTENT     => PCDATA,
+    "Fax"   => {
+        ATTRIBUTES  => {
+            "meaning"   => []
+        },
+        CONTENT     => PCDATA
     },
     
-    "AnalyzerTime" => {
-	ATTRIBUTES  => { "ntpstamp" => [] },
-	CONTENT     => PCDATA,
+    "StartTime" => {
+        CONTENT => PCDATA
     },
     
-    "CreateTime" => {
-	ATTRIBUTES  => { "ntpstamp" => [] },
-	CONTENT     => PCDATA,
-    },
-
-    "DateTime" => {
-        ATTRIBUTES  => { "ntpstamp" => [] },
-        CONTENT     => PCDATA,
+    "EndTime" => {
+        CONTENT => PCDATA
     },
     
     "DetectTime" => {
-	ATTRIBUTES  => { "ntpstamp" => [] },
-	CONTENT     => PCDATA,
+        CONTENT => PCDATA
     },
-
-    "EndTime" => {
-	ATTRIBUTES  => { "ntpstamp" => [] },
-	CONTENT     => PCDATA,
-    },
-
-    "NodeRole" => {
-	ATTRIBUTES => { "category" => [ "client", "server-internal", "server-public",
-					"www", "mail", "messaging", "streaming", "voice",
-					"file", "ftp", "p2p", "name", "directory",
-					"credential", "print", "application", "database",
-					"infra", "log", "other" ] },
-	CONTENT    => PCDATA,
-    },
-
+    
     "ReportTime" => {
-	ATTRIBUTES  => { "ntpstamp" => [] },
-	CONTENT     => PCDATA,
+        CONTENT => PCDATA
+    },
+    
+    "DateTime" => {
+        CONTENT => PCDATA
+    },
+    
+    "Method"    => {
+        ATTRIBUTES => {
+            "restriction"  => [ "public", "need-to-know", "private", "default" ]
+        },
+        CHILDREN    => ["*Reference", "*Description", "*AdditionalData"],
+    },
+    
+    "Reference" => {
+        CHILDREN    => ["1ReferenceName", "*URL", "*Description"],
+    },
+    
+    "Assessment"    => {
+        ATTRIBUTES  => {
+            "occurence"     => ["actual", "potential"],
+            "restriction"   => [ "public", "need-to-know", "private", "default" ]
+        },
+        CHILDREN    => [ "*Impact", "*TimeImpact", "*MonetaryImpact", "*Counter", "?Confidence",
+                         "*AdditionalData"]
+    },
+    
+    "Impact"    => {
+        ATTRIBUTES  => {
+            "lang"          => [],
+            "severity"      => [ "low", "medium", "high" ],
+            "completion"    => [ "failed", "succeeded" ],
+            "type"          => [ "admin", "dos", "file", "info-leak", "misconfiguration",
+                                 "policy", "recon", "social-engineering", "user", "unknown",
+                                 "ext-value"],
+            "ext-type"      => [],
+        },
+        CONTENT => PCDATA
+    },
+    
+    "TimeImpact"    => {
+        ATTRIBUTES  => {
+            "severity"      => [ "low", "medium", "high" ],
+            "metric"        => [ "labor", "elapsed", "downtime", "ext-value" ],
+            "ext-metric"    => [],
+            "duration"      => [ "second", "minute", "hour", "day", "month", "quarter", "year", "ext-value" ],
+            "ext-duration"  => []
+        },
+        CONTENT => PCDATA
+    },
+    
+    "MonetaryImpact"    => {
+        ATTRIBUTES  => {
+            "severity"  => [ "low", "medium", "high" ],
+            "currency"  => []
+        },
+        CONTENT => PCDATA
+    },
+	
+    "Confidence"    => {
+        ATTRIBUTES  => {
+            "rating"    => [ "low", "medium", "high", "numeric" ],
+        },
+        CONTENT => PCDATA,
+    },
+    
+    "History"   => {
+        ATTRIBUTES  => {
+            "restriction"  => [ "public", "need-to-know", "private", "default" ]
+        },
+        CHILDREN    => [ "+HistoryItem" ],
+    },
+    
+    "HistoryItem"   => {
+        ATTRIBUTES  => {
+            "restriction"   => [ "public", "need-to-know", "private", "default" ],
+            "action"        => [ "nothing", "contact-source-site", "contact-target-site", "contact-sender", "investigate",
+                                 "block-host", "block-network", "block-port", "rate-limit-host", "rate-limit-network",
+                                 "rate-limit-port", "remediate-other", "status-triage", "status-new-info", "other",
+                                 "ext-value" ],
+            "ext-action"    => []
+        },
+        CHILDREN    => [ "1DateTime", "?IncidentID", "?Contact", "*Description", "*AdditionalData" ],
+    },
+    
+    "EventData" => {
+        ATTRIBUTES  => {
+            "restriction"   => [ "public", "need-to-know", "private", "default" ],
+        },
+        CHILDREN    => [ "*Description", "?DetectTime", "?StartTime", "?EndTime", "*Contact",
+                         "?Assessment", "*Method", "*Flow", "*Expectation", "?Record",
+                         "*EventData", "*AdditionalData"]
+    },
+    
+    "Expectation"   => {
+        ATTRIBUTES  => {
+            "restriction"   => [ "public", "need-to-know", "private", "default" ],
+            "severity"      => [ "low", "medium", "high" ],
+            "action"        => [ "nothing", "contact-source-site", "contact-target-site", "contact-sender", "investigate",
+                                 "block-host", "block-network", "block-port", "rate-limit-host", "rate-limit-network",
+                                 "rate-limit-port", "remediate-other", "status-triage", "status-new-info", "other",
+                                 "ext-value" ],
+            "ext-action"    => []
+        },
+        CHILDREN    => [ "*Description", "?StartTime", "?EndTime", "?Contact" ]
+    },
+    
+    "Flow"  => {
+        CHILDREN    => [ "+System" ],
+    },
+    
+    "System"    => {
+        ATTRIBUTES  => {
+            "restriction"   => [ "public", "need-to-know", "private", "default" ],
+            "category"      => [ "source", "target", "intermediate", "sensor" , "infrastructure",
+                                 "ext-value" ],
+            "ext-category"  => [],
+            "interface"     => [],
+            "spoofed"       => [ "unknown", "yes", "no" ],
+        },
+        CHILDREN    => [ "1Node", "*Service", "*OperatingSystem", "*Description", "*AdditionalData" ]
+    },
+    
+    "Node"  => {
+        CHILDREN    => [ "*NodeName", "*Address", "?Location", "?DateTime", "*NodeRole",
+                         "*Counter"]
+    },
+    
+    "Counter"   => {
+        ATTRIBUTES  => {
+            "type"          => [ "byte", "packet", "flow", "session", "alert",
+                                 "message", "event", "host", "site", "organization",
+                                 "ext-value" ],
+            "ext-type"      => [],
+            "meaning"       => [],
+            "duration"      => [ "second", "minute", "hour", "day", "month", "quarter", "year", "ext-value" ],
+            "ext-duration"  => [],
+        },
+        CONTENT     => PCDATA
+    },
+    
+    "Address"   => {
+        ATTRIBUTES  => {
+            "category"  => [ "asn", "atm", "e-mail", "ipv4-addr", "ipv4-net",
+                             "ipv4-net-mask", "ipv6-addr", "ipv6-net", "ipv6-net-mask", "mac",
+                             "ext-value" ],
+            "ext-category"  => [],
+            "vlan-name"     => [],
+            "vlan-num"      => [],
+        },
+        CONTENT => PCDATA
+    },
+    
+    "NodeRole"  => {
+        ATTRIBUTES  => {
+            "category"      => [ "client", "server-internal", "server-public", "www", "mail",
+                                 "messaging", "streaming", "voice", "file", "ftp",
+                                 "p2p", "name", "directory", "credential", "print",
+                                 "application", "database", "infra", "log", "ext-value"],
+            "ext-category"  => [],
+            "lang"          => [],
+        }
+    },
+    
+    "Service"   => {
+        ATTRIBUTES  => {
+            "ip_protocol"   => [],
+        },
+        CHILDREN    => [ "?Port", "?Portlist", "?ProtoCode", "?ProtoType", "?ProtoFlags",
+                         "?Application" ]
+    },
+    
+    "Application"   => {
+        ATTRIBUTES  => {
+            "swid"      => [],
+            "configid"  => [],
+            "vendor"    => [],
+            "family"    => [],
+            "name"      => [],
+            "version"   => [],
+            "patch"     => [],
+        },
+        CHILDREN    => [ "?URL" ]
+    },
+    
+    "OperatingSystem"   => {
+        ATTRIBUTES  => {
+            "swid"      => [],
+            "configid"  => [],
+            "vendor"    => [],
+            "family"    => [],
+            "name"      => [],
+            "version"   => [],
+            "patch"     => [],
+        },
+        CHILDREN    => [ "?URL" ]
     },
 
-    "StartTime" => {
-	ATTRIBUTES => { "ntpstamp" => [] },
-	CONTENT    => PCDATA,
+    "Record"    => {
+        ATTRIBUTES  => {
+            "restriction"   => [ "public", "need-to-know", "private", "default" ],
+        },
+        CHILDREN    => [ "+RecordData" ]
     },
-
-    "IncidentID" => {
-	ATTRIBUTES  => { "name" => [] },
-	CONTENT     => PCDATA,
+    
+    "RecordData"    => {
+        ATTRIBUTES  => {
+            "restriction"   => [ "public", "need-to-know", "private", "default" ],
+        },
+        CHILDREN    => [ "?DateTime", "*Description", "?Application", "*RecordPattern", "+RecordItem",
+                         "*AdditionalData" ]
     },
-
-
+    
+    "RecordPattern" => {
+        ATTRIBUTES  => {
+            "type"              => [ "regex", "binary", "xpath", "ext-value" ],
+            "ext-type"          => [],
+            "offset"            => [],
+            "offsetunit"        => [ "line", "binary", "ext-value" ],
+            "ext-offsetunit"    => [],
+            "instance"          => [],
+        },
+        CONTENT => PCDATA,
+    },
+    
+    "RecordItem"    => {
+        ATTRIBUTES  => { "dtype" => ["boolean", "byte", "character", "date-time", "integer", "portlist",
+            "real", "string", "file", "frame", "packet", "ipv4-packet", "ipv6-packet",
+            "path", "url", "csv", "winreg", "xml", "ext-value"],
+            "ext-dtype"    => [],
+            "meaning"      => [],
+            "formatid"     => [],
+            "restriction" => [ "public", "need-to-know", "private", "default" ],
+        },
+        CONTENT     => ANY,
+    },
+ 
     #
     # Simple elements with no sub-elements and no attributes
     #
-    "Description"     => { CONTENT => PCDATA },
+    "Description"   => { CONTENT => PCDATA },
+    "URL"           => { CONTENT => PCDATA },
+    "ContactName"   => { CONTENT => PCDATA },
+    "Timezone"      => { CONTENT => PCDATA },
+    "ReferenceName" => { CONTENT => PCDATA },
+    "NodeName"      => { CONTENT => PCDATA },
+    "Location"      => { CONTENT => PCDATA },
+    "Port"          => { CONTENT => PCDATA },
+    "Portlist"      => { CONTENT => PCDATA },
+    "ProtoCode"     => { CONTENT => PCDATA },
+    "ProtoType"     => { CONTENT => PCDATA },
+    "ProtoFlags"    => { CONTENT => PCDATA },
 
-    "Name"	      => { CONTENT => PCDATA },
-    "Description"     => { CONTENT => PCDATA },
-    "PostalAddress"   => { CONTENT => PCDATA },
-    "Email"           => { CONTENT => PCDATA },
-    "Telephone"       => { CONTENT => PCDATA },
-    "Fax"             => { CONTENT => PCDATA },
-    "Timezone"        => { CONTENT => PCDATA },
-    
-    "access-time"     => { CONTENT => PCDATA },
-    "address"         => { CONTENT => PCDATA },
-    "arg"             => { CONTENT => PCDATA },
-    "buffer"          => { CONTENT => PCDATA },
-    "c-major-device"  => { CONTENT => PCDATA },
-    "c-minor-device"  => { CONTENT => PCDATA },
-    "cgi"             => { CONTENT => PCDATA },
-    "change-time"     => { CONTENT => PCDATA },
-    "command"         => { CONTENT => PCDATA },
-    "community"       => { CONTENT => PCDATA },
-    "create-time"     => { CONTENT => PCDATA },
-    "data-size"       => { CONTENT => PCDATA },
-    "disk-size"       => { CONTENT => PCDATA },
-    "env"             => { CONTENT => PCDATA },
-    "http-method"     => { CONTENT => PCDATA },
-    "Location"        => { CONTENT => PCDATA },
-    "major-device"    => { CONTENT => PCDATA },
-    "minor-device"    => { CONTENT => PCDATA },
-    "modify-time"     => { CONTENT => PCDATA },
-    "name"            => { CONTENT => PCDATA },
-    "netmask"         => { CONTENT => PCDATA },
-    "number"          => { CONTENT => PCDATA },
-    "oid"             => { CONTENT => PCDATA },
-    "path"            => { CONTENT => PCDATA },
-    "permission"      => { CONTENT => PCDATA },
-    "pid"             => { CONTENT => PCDATA },
-    "port"            => { CONTENT => PCDATA },
-    "portlist"        => { CONTENT => PCDATA },
-    "program"         => { CONTENT => PCDATA },
-    "protocol"        => { CONTENT => PCDATA },
-    "size"            => { CONTENT => PCDATA },
-    "Url"             => { CONTENT => PCDATA },
-    "url"             => { CONTENT => PCDATA },
-
-    #
-    # Not defined in IODEF DTD
-    #
-
-    "securityName"    => { CONTENT => PCDATA },
-    "contextName"     => { CONTENT => PCDATA },
-    "contextEngineID" => { CONTENT => PCDATA },
 };
 
 
@@ -677,11 +660,11 @@ my $IODEF_DTD = {
 # an attribute, 'C' if it is a content, 'N' if it is just a node. Notice that
 # a C path is a N path.
 # ex:
-#    'IncidentIncidentDataEventDatarestriction'  => [ A, "Incident", "IncidentData", "EventData", "restriction"],
-#    'Incidentpurpose'                           => [ A, "Incident", "purpose"],
-#    'IncidentIncidentDataDescription'           => [ C, "Incident", "IncidentData", "Description"],
-#    'IncidentIncidentDataEventDataStartTime'    => [ C, "Incident", "IncidentData", "EventData", "StartTime"],
-#    'IncidentIncidentDataContact'               => [ N, "Incident", "IncidentData", "Contact"],
+#    'IncidentEventDatarestriction'     => [ A, "Incident", "EventData", "restriction"],
+#    'Incidentpurpose'                  => [ A, "Incident", "purpose"],
+#    'IncidentDescription'              => [ C, "Incident", "Description"],
+#    'IncidentEventDataStartTime'       => [ C, "Incident", "EventData", "StartTime"],
+#    'IncidentContact                   => [ N, "Incident", "Contact"],
 
 my $EXPAND_PATH = {};
 
@@ -691,19 +674,17 @@ my $EXPAND_PATH = {};
 # an array of the corresponding allowed values.
 #
 # ex: 
-#    'Incidentpurpose' => [ 'handling', 'statistics'... ],
+#    'Incidentpurpose' => [ 'reporting', 'mitigation'... ],
 #
 
 my $CHECK_VALUE = {};
 
 
+# DEPRECATED
 # a counter used by create_ident's unique id generator
 #
 
 my $ID_COUNT = 0;
-
-
-
 
 
 #
@@ -731,7 +712,7 @@ my $XML_DECL_ENC = "UTF-8";
 
 my $DOCTYPE_NAME  = "IODEF-Document";
 my $DOCTYPE_SYSID = "IODEF-Document.dtd";
-my $DOCTYPE_PUBID = "-//IETF//DTD RFC XXXX IODEF v1.0//EN";
+my $DOCTYPE_PUBID = "-//IETF//DTD RFC 5070 IODEF v1.0//EN";
 
 
 
@@ -994,6 +975,8 @@ sub new {
     $iodef->{"DOM"} = $doc;
 
     $iodef->add("version", $IODEF_VERSION);
+    $iodef->add("xmlns:iodef", "urn:ietf:params:xml:ns:iodef-1.0");
+    $iodef->add("xsi:schemaLocation","urn:ietf:params:xmls:schema:iodef-1.0");
 
     return $iodef;
 }
@@ -1267,7 +1250,6 @@ sub find_node_in_first_path {
 }
 
 
-
 ##----------------------------------------------------------------------------------------
 ##
 ## add(hash, tagpath, value)
@@ -1310,13 +1292,13 @@ sub find_node_in_first_path {
 ##      => same as:  (type string is assumed by default)
 ##         add("IncidentAdditionalData", <value>); 
 ##         add("IncidentAdditionalDatameaning", <meaning>); 
-##         add("IncidentAdditionalDatatype", "string");
+##         add("IncidentAdditionalDatadtype", "string");
 ##
 ##   add("IncidentAdditionalData", <value>, <meaning>, <type>); 
 ##      => same as: 
 ##         add("IncidentAdditionalData", <value>); 
 ##         add("IncidentAdditionalDatameaning", <meaning>); 
-##         add("IncidentAdditionalDatatype", <type>);
+##         add("IncidentAdditionalDatadtype", <type>);
 ##
 ##   The use of add("IncidentAdditionalData", <arg1>, <arg2>, <arg3>); is prefered to the simple
 ##   add call, since it creates the whole AdditionalData node at once. In the case of 
@@ -1330,16 +1312,16 @@ sub find_node_in_first_path {
 ##
 ##   $iodef->add("IncidentIncidentID", "<value>");     
 ##
-##   $iodef->add($iodef, "IncidentIncidentDatarestriction", "<value>");
+##   $iodef->add($iodef, "Incidentrestriction", "<value>");
 ##
 ##   # AdditionalData case:
 ##   # DO:
 ##   $iodef->add("IncidentAdditionalData", "value");           # content add first
-##   $iodef->add("IncidentAdditionalDatatype", "string");      # ok
+##   $iodef->add("IncidentAdditionalDatadtype", "string");      # ok
 ##   $iodef->add("IncidentAdditionalDatameaning", "meaning");  # ok
 ##
 ##   $iodef->add("IncidentAdditionalData", "value2");          # content add first 
-##   $iodef->add("IncidentAdditionalDatatype", "string");      # ok
+##   $iodef->add("IncidentAdditionalDatadtype", "string");      # ok
 ##   $iodef->add("IncidentAdditionalDatameaning", "meaning2"); # ok
 ##
 ##   # or BETTER:
@@ -1355,10 +1337,10 @@ sub find_node_in_first_path {
 ##   # DO NOT DO:
 ##   $iodef->add("IncidentAdditionalData", "value");           # BAD!!!!! mixing node declarations
 ##   $iodef->add("IncidentAdditionalData", "value2");          # BAD!!!!! for value & value2
-##   $iodef->add("IncidentAdditionalDatatype", "string");      # BAD!!!!! 
-##   $iodef->add("IncidentAdditionalDatatype", "string");      # BAD!!!!!
-##
-##
+##   $iodef->add("IncidentAdditionalDatadtype", "string");      # BAD!!!!! 
+##   $iodef->add("IncidentAdditionalDatadtype", "string");      # BAD!!!!!
+
+## TODO -- test ext-value and ext-dtype
 
 sub add {
     my ($tag, $root, $dom, $c);
@@ -1393,6 +1375,7 @@ sub add {
     $tag = @{$EXPAND_PATH->{$path}}[3];
 
     # check if it is AdditionalData	
+    ## TODO: check for ext-value settings
     if (defined($tag) && substr($tag,1) eq "AdditionalData") {
 	
 	if (scalar(@tail) == 0) {
@@ -1400,12 +1383,12 @@ sub add {
 	} elsif (scalar(@tail) == 1) {
 	    add_in_dom($dom, $root, $path, $value);
 	    add_in_dom($dom, $root, $path."meaning", $tail[0]);
-	    add_in_dom($dom, $root, $path."type", "string");
+	    add_in_dom($dom, $root, $path."dtype", "string");
 	} elsif (scalar(@tail) == 2) {
-	    check_allowed($path."type", $tail[1], @{$CHECK_VALUE->{$path."type"}});
+	    check_allowed($path."type", $tail[1], @{$CHECK_VALUE->{$path."dtype"}});
 	    add_in_dom($dom, $root, $path, $value);
 	    add_in_dom($dom, $root, $path."meaning", $tail[0]); 	
-	    add_in_dom($dom, $root, $path."type", $tail[1]);
+	    add_in_dom($dom, $root, $path."dtype", $tail[1]);
 	} else {
 	    croak "add: wrong number of arguments given to add(\"$path\")";
 	}
@@ -1671,7 +1654,7 @@ sub check_allowed {
 ##   my $iodef = new XML::IODEF();
 ##
 ##   $iodef->add("IncidentAdditionalData", "value");           # content add first
-##   $iodef->add("IncidentAdditionalDatatype", "string");      # ok
+##   $iodef->add("IncidentAdditionalDatadtype", "string");      # ok
 ##   $iodef->add("IncidentAdditionalDatameaning", "meaning");  # ok
 ##
 ##   # change AdditionalData's content value
@@ -1780,7 +1763,7 @@ sub set {
 ##   my $iodef = new XML::IODEF();
 ##
 ##   $iodef->add("IncidentAdditionalData", "value");           # content add first
-##   $iodef->add("IncidentAdditionalDatatype", "string");      # ok
+##   $iodef->add("IncidentAdditionalDatadtype", "string");      # ok
 ##   $iodef->add("IncidentAdditionalDatameaning", "meaning");  # ok
 ##
 ##   # change AdditionalData's content value
@@ -1841,7 +1824,7 @@ sub get {
 
 ##----------------------------------------------------------------------------------------
 ##
-## create_ident(<iodef>)
+## create_ident(<iodef>) -- deprecated
 ##
 ## ARGS:
 ##   <iodef>       iodef message object
@@ -1859,6 +1842,8 @@ sub create_ident {
     my($id, $iodef, $name, $netaddr);
     $iodef = shift;
 
+    warn 'create_ident is deprecated, you should be using your domain-name in conjuction with the ID from your workflow system';
+    
     $name = $iodef->get_type();
     $name = "Incident" if (!defined $name);
 
@@ -1896,25 +1881,9 @@ sub create_ident {
 sub create_time {
     my $iodef = shift;
     my $utc   = shift || time(); 
-
-    my $name = "IncidentIncidentData";
-
-    # add time stamp
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($utc);
-    $year += 1900;
-    $mon  += 1;
-
-    add($iodef, 
-	$name."ReportTime", 
-	sprintf("%04d-%02d-%02dT%02d:%02d:%02d+0000",
-		$year, $mon, $mday, $hour, $min, $sec));
-
-    # seconds between 1900-01-01 and 1970-01-01
-    $utc = $utc + 2208988800;
-    # translate utc to hex
-    $utc = sprintf "%x", $utc;
-
-    add($iodef, $name."ReportTimentpstamp", "0x$utc.0x0");    
+    
+    my $timestamp = DateTime->from_epoch(epoch => $utc);
+    add($iodef,'IncidentReportTime',$timestamp.'Z');
 }
 
 
@@ -2152,7 +2121,6 @@ sub xml_decode {
 #
 #----------------------------------------------------------------------------------------
 
-
 1;
 
 __END__
@@ -2169,14 +2137,14 @@ Below is an example of an Incident IODEF message.
 
 
   <?xml version="1.0" encoding="UTF-8"?>
-  <!DOCTYPE IODEF-Message PUBLIC "-//IETF//DTD RFC XXXX IODEF v1.0//EN" "IODEF-Document.dtd">
+  <!DOCTYPE IODEF-Message PUBLIC "-//IETF//DTD RFC 5070 IODEF v1.0//EN" "IODEF-Document.dtd">
   <IODEF-Document>
-    <Incident purpose="handling">
+    <Incident purpose="reporting">
       <IncidentID>
 	#12345
       </IncidentID>
-      <AdditionalData meaning="data2" type="string">value2</AdditionalData>
-      <AdditionalData meaning="data1" type="string">value1</AdditionalData>
+      <AdditionalData meaning="data2" dtype="string">value2</AdditionalData>
+      <AdditionalData meaning="data1" dtype="string">value1</AdditionalData>
     </Incident>
   </IODEF-Document>
 
@@ -2187,34 +2155,37 @@ The previous IODEF message can be built with the following code snipset:
 
     my $iodef = new XML::IODEF();  
 
-    $iodef->add("Incidentpurpose", "handling");
+    $iodef->add("Incidentpurpose", "reporting");
     $iodef->add("IncidentAdditionalData", "value1", "data1"); 
     $iodef->add("IncidentAdditionalData", "value2", "data2");
     $iodef->add("IncidentIncidentID", "#12345");
 
     print $iodef->out();
 
-To automatically insert an the ReportTime class to the current time, add the 2 lines:
+To automatically insert an the ReportTime class to the current time, add the line:
 
     $iodef->create_time();
 
 and you will get (for example):
 
   <?xml version="1.0" encoding="UTF-8"?>
-  <!DOCTYPE IODEF-Message PUBLIC "-//IETF//DTD RFC XXXX IODEF v1.0//EN" "IODEF-Document.dtd">
+  <!DOCTYPE IODEF-Message PUBLIC "-//IETF//DTD RFC 5070 IODEF v1.0//EN" "IODEF-Document.dtd">
   <IODEF-Document>
-    <Incident purpose="handling">
+    <Incident purpose="reporting">
       <IncidentID>
 	#12345
       </IncidentID>
-      <IncidentData>
-	<ReportTime ntpstamp="0xc28859cf.0x0">2003-06-04-T11:43:11Z">2003-06-04-T11:43:11Z</ReportTime>
+	<ReportTime>2009-12-31T18:00:58Z</ReportTime>
       <AdditionalData meaning="data2" type="string">value2</AdditionalData>
       <AdditionalData meaning="data1" type="string">value1</AdditionalData>
     </Incident>
   </IODEF-Document>
 
 
+=head1 WARNING
+ 
+This RFC release was a complete restructuring from the draft XML::IODEF v0.06 was based on. THIS MODULE WILL PROBABLY BREAK YOUR EXISTING XML::IODEF CODE due to this restructuring. YOU SHOULD TEST AND RETEST BEFORE DEPLOYING INTO PRODUCTION!
+ 
 =head1 DESCRIPTION
 
 IODEF.pm is an interface for simply creating and parsing IODEF messages. IODEF is an XML based protocol designed mainly for representing computer security incidents (http://www.ietf.org/html.charters/inch-charter.html).
@@ -2238,9 +2209,10 @@ This code is distributed under the BSD license.
     set_doctype_sysid
     set_doctype_pubid
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-John Green - johng@cpan.org
+ John Green - johng@cpan.org (Original) 
+ Wes Young  - wes@barely3am.com  (2007 Update -- RFC 5070)
 
 =head1 LICENSE
 
@@ -2248,7 +2220,9 @@ This code is released under the BSD license.
 
 =head1 SEE ALSO
 
-XML::DOM, XML::Parser
+ XML::DOM, XML::Parser, DateTime
+ http://tools.ietf.org/html/rfc5070
+ http://code.google.com/p/perl-xml-iodef
 
 =head1 SYNOPSIS
 
@@ -2258,12 +2232,6 @@ Rather than returning with non null error codes, these API calls will raise an e
 
 
 =head1 OBJECT METHODS
-
-=over 4
-
-
-
-
 
 =head2 B<new>()
 
@@ -2333,28 +2301,6 @@ C<out> returns the IODEF message as a string.
  print $iodef->out;
 
 =back
-
-
-
-
-=head2 $iodef->B<create_ident>()
-
-=over 4
-
-=item B<ARGS> none.
-
-=item B<RETURN> nothing.
-
-=item B<DESC>
-   
-C<create_ident> generates a unique IODEF ident tag and inserts it into this IODEF message. The tag is generated based on the local time, a random number, the process pid and an internal counter. If the IODEF message does not yet have a type, it will become 'Incident' by default.
-
-=item B<EXAMPLES>
-
- $iodef->create_ident();
-
-=back
-
 
 
 
@@ -2449,13 +2395,13 @@ As a response to this issue, the 'add("IncidentAdditionalData", "value")' call a
       => same as:  (type "string" is assumed by default)
          add("IncidentAdditionalData", <value>); 
          add("IncidentAdditionalDatameaning", <meaning>); 
-         add("IncidentAdditionalDatatype", "string");
+         add("IncidentAdditionalDatadtype", "string");
 
-   add("IncidentAdditionalData", <value>, <meaning>, <type>); 
+   add("IncidentAdditionalData", <value>, <meaning>, <dtype>); 
       => same as: 
          add("IncidentAdditionalData", <value>); 
          add("IncidentAdditionalDatameaning", <meaning>); 
-         add("IncidentAdditionalDatatype", <type>);
+         add("IncidentAdditionalDatadtype", <dtype>);
 
 The use of add("IncidentAdditionalData", <arg1>, <arg2>, <arg3>) is prefered to the simple C<add> call, since it creates the whole AdditionalData node at once. In the case of multiple arguments C<add("IncidentAdditionalData"...)>, the returned value is 1 if the type key was inserted, 0 otherwise.
 
@@ -2470,11 +2416,11 @@ The use of add("IncidentAdditionalData", <arg1>, <arg2>, <arg3>) is prefered to 
  # AdditionalData case:
  # DO:
  $iodef->add("IncidentAdditionalData", "value");           # creating first AdditionalData node
- $iodef->add("IncidentAdditionalDatatype", "string");      
+ $iodef->add("IncidentAdditionalDatadtype", "string");      
  $iodef->add("IncidentAdditionalDatameaning", "meaning");  
 
  $iodef->add("IncidentAdditionalData", "value2");          # creating second AdditionalData node
- $iodef->add("IncidentAdditionalDatatype", "string");      
+ $iodef->add("IncidentAdditionalDatadtype", "string");      
  $iodef->add("IncidentAdditionalDatameaning", "meaning2"); 
 
  # or BETTER:
@@ -2515,7 +2461,7 @@ C<set()> only allows you to reach and change the attribute or content of the fir
  my $iodef = new XML::IODEF();
 
  $iodef->add("IncidentAdditionalData", "value");           # content add first
- $iodef->add("IncidentAdditionalDatatype", "string");      # ok
+ $iodef->add("IncidentAdditionalDatadtype", "string");      # ok
  $iodef->add("IncidentAdditionalDatameaning", "meaning");  # ok
 
  # change AdditionalData's content value
@@ -2597,7 +2543,7 @@ C<to_hash> returns a hash enumerating all the contents and attributes of this IO
 =item B<EXAMPLES>
 
  <IODEF-Document version="1.0">
-   <Incident purpose="handling">
+   <Incident purpose="mitigation">
      <IncidentID>
        #12345
      </IncidentID>
@@ -2609,7 +2555,7 @@ C<to_hash> returns a hash enumerating all the contents and attributes of this IO
  becomes:
   
  { "version"                       => [ "1.0" ],
-   "Incidentpurpose"               => [ "handling" ],
+   "Incidentpurpose"               => [ "mitigation" ],
    "IncidentIncidentID"            => [ "#12345" ],
    "IncidentAdditionalDatameaning" => [ "datatype1", "datatype2" ],   # meaning & contents are
    "IncidentAdditionalData"        => [ "type1", "type2" ],           # listed in same order
@@ -2622,12 +2568,9 @@ C<to_hash> returns a hash enumerating all the contents and attributes of this IO
 
 =head1 CLASS METHODS
 
-=over 4
-
 =head2 COMMENT
 
 The following class methods are designed to access the DTD and XML engine on top of which XML::IODEF is built. These calls allows you to use the XML::IODEF API calls to generate/parse other XML formats than IODEF, by loading a given DTD representation into XML::IODEF and changing the corresponding DOCTYPE declarations. Avoid using these calls if you can, as they are little documented and subject to changes. No support will be provided on how to use them, and the documentation lies in the source code :) 
-
 
 
 =head2 B<set_doctype_name>($string)
@@ -2674,7 +2617,7 @@ I<$string>: a DOCTYPE public ID
 
 =item B<DESC>
    
-Sets the public ID field in the XML DOCTYPE declaration of XML messages generated by XML::IODEF. '-//IETF//DTD RFC XXXX IODEF v1.0//EN' is the default.
+Sets the public ID field in the XML DOCTYPE declaration of XML messages generated by XML::IODEF. '-//IETF//DTD RFC 5070 IODEF v1.0//EN' is the default.
 
 =back
 
@@ -2700,18 +2643,22 @@ Internally, the IODEF.pm module is built around a DTD parser, which reads an XML
 The format of the pseudo-DTD representation is complex and subject to changes. Yet, if you really wish to use these functionalities, you will find proper documentation in the module source code.
 
 Example: to add a new node called hexdata to the AdditionalData node, do:
-
+ 
     my $ext_dtd = {
         "AdditionalData" => {
-            ATTRIBUTES  => { "type" => ["string", "boolean", "byte", "character", 
-                                        "date-time", "integer", "ntpstamp",
-                                        "portlist", "real", "xml"],
-                             "meaning" => [],
-                           },
-            CONTENT     => ANY,
-            CHILDREN    => ["hexdata"],
-        }, 
-        "hexdata"        => { CONTENT => PCDATA },
+            ATTRIBUTES  => { 
+                "dtype" => ["boolean", "byte", "character", "date-time", "integer", "portlist",
+                "real", "string", "file", "frame", "packet", "ipv4-packet", "ipv6-packet",
+                "path", "url", "csv", "winreg", "xml", "ext-value"],
+                "ext-dtype"    => [],
+                "meaning"      => [],
+                "formatid"     => [],
+                "restriction" => [ "public", "need-to-know", "private", "default" ],
+            },
+            CONTENT => 'ANY',
+            CHILDREN    => [ "hexdata" ],
+        },
+        "hexdata"   => { CONTENT => PCDATA },
     };
     extend_dtd($ext_dtd, "IODEF-Document");
 

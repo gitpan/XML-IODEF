@@ -16,12 +16,11 @@ DESCRIPTION
   ******* WARNING ******* WARNING ******* WARNING ******* WARNING *******
 
    You'd hence better check that using this version of the module
-   does not break anything in your code (it should not, but, well...
-   you know...)
+   does not break anything in your code.
 
    And of course: this is a beta release and has not been thoroughly
    tested. Please try it out if you can and report success/failure to
-   the author (johng@cpan.org).
+   the project: http://code.google.com/p/perl-xml-iodef/issues/list 
 
    Use in production systems is at your own risks.
 
@@ -59,13 +58,13 @@ STATUS
   email the author and provide him as much information as possible on the
   bug and its context.
 
-  Please send any feedback to the author: johng@cpan.org
+  Please send any feedback to the project: http://code.google.com/p/perl-xml-iodef/issues/list
 
 
 NEW IN THIS RELEASE
 
   The API is now compliant with the current draft of IODEF available
-  from http://www.ietf.org/internet-drafts/draft-ietf-inch-iodef-01.txt.
+  from http://tools.ietf.org/html/rfc5070.
 
   See 'Changes' for a detailed history.
 
@@ -80,6 +79,7 @@ COPYRIGHT
 
   Copyright 2002 Erwan Lemonnier.
   Copyright 2003 John Green
+  Copyright 2010 Wes Young (wes@barely3am.com)
 
   This module is free software under BSD license.
 

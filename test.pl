@@ -7,7 +7,6 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Data::Dumper;
 use Test;
 BEGIN { plan tests => 18 };
 use XML::IODEF;
@@ -49,8 +48,7 @@ my($iodef, $str_iodef, $iodef2, $type);
 
 #$iodef = XML::IODEF::in({}, "iodef.example.2");
 
-my $ST_IODEF = "<?xml version='1.0' encoding='UTF-8'?>\n<!DOCTYPE IODEF-Document PUBLIC '-//IETF//DTD RFC XXXX IODEF v1.0//EN' 'IODEF-Document.dtd'>\n<IODEF-Document version='1.0'>\n<Incident purpose='handling'>\n<IncidentID>#1234</IncidentID>\n<IncidentData restriction='need-to-know'>\n<Description>Some IncidentData</Description>\n</IncidentData>\n</Incident>\n</IODEF-Document>";
-
+my $ST_IODEF = "<?xml version='1.0' encoding='UTF-8'?>\n<!DOCTYPE IODEF-Document PUBLIC '-//IETF//DTD RFC 5070 IODEF v1.0//EN' 'IODEF-Document.dtd'>\n<IODEF-Document version='1.0' xmlns:iodef='urn:ietf:params:xml:ns:iodef-1.0' xsi:schemaLocation='urn:ietf:params:xmls:schema:iodef-1.0'>\n<Incident purpose='reporting' restriction='need-to-know'>\n<IncidentID>#1234</IncidentID>\n<Description>Some IncidentData</Description>\n</Incident>\n</IODEF-Document>";
 
 
 ##
@@ -63,7 +61,7 @@ eval {
 
     check("new XML::IODEF did not return a proper IODEF message.")
 	if ($iodef->out !~ '<\?xml version="1.0" encoding="UTF-8"\?>.*
-<!DOCTYPE IODEF-Document PUBLIC "-//IETF//DTD RFC XXXX IODEF v1.0//EN" "IODEF-Document.dtd">.*');
+<!DOCTYPE IODEF-Document PUBLIC "-//IETF//DTD RFC 5070 IODEF v1.0//EN" "IODEF-Document.dtd">.*');
 };
 check($@);
 
@@ -93,7 +91,6 @@ check("get_type did not return right message type.")
 
 ok(1);
 
-
 ##
 ## test: contain key
 ##
@@ -101,11 +98,7 @@ title "Testing contains()...";
 
 print "*";
 check("contains() says existing node does not exists.")
-    if ($iodef->contains("IncidentIncidentDataDescription") != 1);
-
-print "*";
-check("contains() says non-existing node exists.")
-    if ($iodef->contains("IncidentDescription") != 0);
+    if ($iodef->contains("IncidentDescription") != 1);
 
 print "*";
 check("contains() says existing tag does not exists.")
@@ -113,9 +106,8 @@ check("contains() says existing tag does not exists.")
 
 print "* ";
 check("contains() says non-existing tag exists.")
-    if ($iodef->contains("IncidentAlternativeIDs") != 0);
+    if ($iodef->contains("IncidentAlternativeID") != 0);
 ok(1);
-
 
 ##
 ## test: add attributes
@@ -125,11 +117,11 @@ $iodef = new XML::IODEF;
 
 title "Test adding attributes to empty message...";
 eval {
-    $iodef->add("Incidentpurpose", "handling");
+    $iodef->add("Incidentpurpose", "reporting");
     $iodef->add("Incidentrestriction", "need-to-know");
-    $iodef->add("IncidentIncidentDataContactrole", "admin");
+    $iodef->add("IncidentContactrole", "admin");
     check("add() did not perform as expected when adding attributes.")
-	if ($iodef->out !~ '.*<IODEF-Document version="1.0"><Incident purpose="handling" restriction="need-to-know"><IncidentData><Contact role="admin"/></IncidentData></Incident></IODEF-Document>.*');
+	if ($iodef->out !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident purpose="reporting" restriction="need-to-know"><Contact role="admin"/></Incident></IODEF-Document>.*');
 };
 check($@);
 
@@ -139,14 +131,13 @@ check($@);
 
 title "Test adding nodes...";
 eval {
-    $iodef->add("IncidentIncidentData");
-    $iodef->add("IncidentIncidentDataEventDataContact");
-    $iodef->add("IncidentIncidentDataEventData");
-
+    $iodef->add("IncidentEventData");
+    $iodef->add("IncidentEventDataContact");
+    $iodef->add("IncidentEventData");
     check("add() did not perform as expected when adding nodes.")
-	if ($iodef->out !~ '.*<Incident purpose="handling" restriction="need-to-know"><IncidentData><EventData/><EventData><Contact/></EventData></IncidentData><IncidentData><Contact role="admin"/></IncidentData></Incident>.*');
+	if ($iodef->out !~ '.*Incident purpose="reporting" restriction="need-to-know"><Contact role="admin"/><EventData/><EventData><Contact/></EventData></Incident>.*');
 };
-check($@);
+check($@); 
 
 ##
 ## test: add content
@@ -155,10 +146,10 @@ check($@);
 title "Test adding contents...";
 eval {
     $iodef->add("IncidentIncidentID","#12345");
-    $iodef->add("IncidentIncidentDataContactname","Joe Bloggs");
-    $iodef->add("IncidentIncidentDataExpectation","Do something");
+    $iodef->add("IncidentContactContactName","Joe Bloggs");
+    $iodef->add("IncidentEventDataExpectationDescription","Do something");
     check("add() did not perform as expected when adding contents.")
-	if ($iodef->out !~ '.*<Incident purpose="handling" restriction="need-to-know"><IncidentID>#12345</IncidentID><IncidentData><Contact><name>Joe Bloggs</name></Contact><Expectation/><EventData/><EventData><Contact/></EventData></IncidentData><IncidentData><Contact role="admin"/></IncidentData></Incident>.*')
+	if ($iodef->out !~ '.*<Incident purpose="reporting" restriction="need-to-know"><IncidentID>#12345</IncidentID><Contact role="admin"><ContactName>Joe Bloggs</ContactName></Contact><EventData><Expectation><Description>Do something</Description></Expectation></EventData><EventData><Contact/></EventData></Incident>.*')
 };
 check($@);
     
@@ -195,9 +186,8 @@ eval {
     $iodef = new XML::IODEF;
 
     $iodef->create_time(125500);
-
     check("create_time() returned a wrong time tag.")
-    if ($iodef->out() !~ '.*<Incident><IncidentData><ReportTime ntpstamp="0x83ac68bc.0x0">1970-01-02T10:51:40\+0000</ReportTime></IncidentData></Incident>.*')
+    if ($iodef->out() !~ '.*<Incident><ReportTime>1970-01-02T10:51:40Z</ReportTime></Incident>.*')
 };
 check($@);
 
@@ -212,10 +202,10 @@ $iodef = new XML::IODEF;
 $iodef->add("IncidentAdditionalData", "value0"); 
 $iodef->add("IncidentAdditionalData", "value1");
 $iodef->add("IncidentAdditionalDatameaning", "data1");
-$iodef->add("IncidentAdditionalData", "value2", "data2");   
+$iodef->add("IncidentAdditionalData", "value2", "data2");
 $iodef->add("IncidentAdditionalData", "value3", "data3", "string");
 check("add() did not handle AdditionalData properly.")
-    if ($iodef->out() !~ '.*<IODEF-Document version="1.0"><Incident><AdditionalData meaning="data3" type="string">value3</AdditionalData><AdditionalData meaning="data2" type="string">value2</AdditionalData><AdditionalData meaning="data1">value1</AdditionalData><AdditionalData>value0</AdditionalData></Incident></IODEF-Document>.*');
+    if ($iodef->out() !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><AdditionalData meaning="data3" dtype="string">value3</AdditionalData><AdditionalData meaning="data2" dtype="string">value2</AdditionalData><AdditionalData meaning="data1">value1</AdditionalData><AdditionalData>value0</AdditionalData></Incident></IODEF-Document>.*');
 
 ok(1);
 
@@ -251,7 +241,7 @@ if ($@) {
 
 # changing non-existing tag
 eval {
-    $iodef->set("IncidentIncidentDataContactAddress", "blob");
+    $iodef->set("IncidentContactAddress", "blob");
 };
 
 check("set: did not raise error when setting non existent content node.\n")
@@ -296,7 +286,7 @@ check("get: returned wrong content when getting attribute.\n")
 # get non existing content
 title "Test get() on non-existing content...";
 eval {
-    $v =  $iodef->get("IncidentIncidentDataEventDataSystemNodeAddressaddress");
+    $v =  $iodef->get("IncidentEventDataFlowSystemNodeAddress");
 };
 check($@);
 
@@ -316,7 +306,7 @@ $iodef = new XML::IODEF;
 
 $iodef->add("IncidentAdditionalData", "$string1");
 check("add() did not handle special characters encoding according to XML specs.")
-    if ($iodef->out() !~ '.*<IODEF-Document version="1.0"><Incident><AdditionalData>hi bob&amp;&quot;&amp;amp;&amp;#x0065</AdditionalData></Incident></IODEF-Document>.*');
+    if ($iodef->out() !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><AdditionalData>hi bob&amp;&quot;&amp;amp;&amp;#x0065</AdditionalData></Incident></IODEF-Document>.*');
 
 ok(1);
 
@@ -329,13 +319,13 @@ title("Testing multiple add() calls bug...");
 
 $iodef = new XML::IODEF;
 
-$iodef->add("IncidentIncidentDataDescription", "The first description");
-$iodef->add("IncidentIncidentDataExpectation",  "Do Something");
+$iodef->add("IncidentDescription", "The first description");
+$iodef->add("IncidentEventDataExpectationDescription",  "Do Something");
 
-$iodef->add("IncidentIncidentDataDescription", "The second description");
-$iodef->add("IncidentIncidentDataExpectation",  "Please, and again");
+$iodef->add("IncidentDescription", "The second description");
+$iodef->add("IncidentEventDataExpectationDescription",  "Please, and again");
 check("add() call bug still here!")
-    if ($iodef->out() !~ '.*<IODEF-Document version="1.0"><Incident><IncidentData><Description>The second description</Description><Description>The first description</Description><Expectation/><Expectation/></IncidentData></Incident></IODEF-Document>.*');
+    if ($iodef->out() !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><Description>The second description</Description><Description>The first description</Description><EventData><Expectation><Description>Please, and again</Description><Description>Do Something</Description></Expectation></EventData></Incident></IODEF-Document>.*');
 
 ok(1);
 

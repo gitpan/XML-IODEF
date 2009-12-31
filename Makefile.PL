@@ -2,14 +2,10 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    'NAME'		=> 'XML::IODEF',
-    'VERSION_FROM'	=> 'IODEF.pm', # finds $VERSION
-    'DISTNAME'          => 'XML-IODEF', 
-    'PREREQ_PM'		=> { 'XML::DOM'        => '0',
-                             'XML::Parser'        => '0',
-#                            'XML::Parser::Expat' => '0', 
-                           }, 
-    ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
-      (ABSTRACT   => 'API for parsing/creating IODEF XML messages',
-       AUTHOR     => 'John Green johng@cpan.org') : ()),
+    NAME              => 'XML::IODEF',
+    VERSION_FROM      => 'lib/XML/IODEF.pm', # finds $VERSION
+    PREREQ_PM         => {XML::DOM => undef, XML::Parser => undef, XML::Parser::Expat => undef}, # e.g., Module::Name => 1.1
+    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
+      (ABSTRACT_FROM  => 'lib/XML/IODEF.pm', # retrieve abstract from module
+       AUTHOR         => 'John Green johng@cpan.org, Wes Young <wes@barely3am.com>') : ()),
 );
