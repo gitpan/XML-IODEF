@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               XML-IODEF
-version:            0.07_1
+version:            0.07_2
 abstract:           A module for building/parsing IODEF messages
 author:
     - John Green johng@cpan.org, Wes Young <wes@barely3am.com>

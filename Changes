@@ -1,5 +1,10 @@
 Revision history for Perl extension XML::IODEF
 
+0.07_2 2010-01-05
+	- Development Release
+	- added function: to_hashref() which provides a suppliment function of to_hash (XML::Simple-like).
+	- cleaned up some code formatting and some doc errors
+
 0.07_1 2010-01-01
 	- Development Release
 	- Updated to RFC 5070 compliance (2007 Release)

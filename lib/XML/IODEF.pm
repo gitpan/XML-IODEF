@@ -9,6 +9,7 @@ use warnings;
 use Carp;
 use XML::DOM;
 use DateTime;
+use XML::Simple;
 
 # export, version, inheritance
 require Exporter;
@@ -29,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.07_1';
+our $VERSION = '0.07_2';
 
 our $MAX_ITER = 20;
 
@@ -265,10 +266,11 @@ my $IODEF_DTD = {
     },
 
     "Incident" => {
-		ATTRIBUTES  => { "purpose"		=> [ "traceback", "mitigation", "reporting", "other", "ext-value" ],
-						 "ext-purpose"	=> [],
-						 "lang"			=> [],
-						 "restriction"	=> [ "public", "need-to-know", "private", "default" ]
+		ATTRIBUTES  => { 
+			"purpose"		=> [ "traceback", "mitigation", "reporting", "other", "ext-value" ],
+			"ext-purpose"	=> [],
+			"lang"			=> [],
+			"restriction"	=> [ "public", "need-to-know", "private", "default" ]
 		},
 		CHILDREN    => [ "1IncidentID", "?AlternativeID", "?RelatedActivity", "?DetectTime",
 						 "?StartTime", "?EndTime", "1ReportTime", "*Description", "+Assessment", 
@@ -310,11 +312,12 @@ my $IODEF_DTD = {
     }, 
     
     "Contact" => { 
-        ATTRIBUTES  => { "role"         => [ "creator", "admin", "tech", "irt", "cc", "ext-value" ],
-                         "ext-role"     => [],
-                         "type"         => [ "person", "organization", "ext-value" ],
-                         "ext-type"     => [],
-                         "restriction"  => [ "public", "need-to-know", "private", "default" ]
+        ATTRIBUTES  => { 
+			"role"         => [ "creator", "admin", "tech", "irt", "cc", "ext-value" ],
+            "ext-role"     => [],
+            "type"         => [ "person", "organization", "ext-value" ],
+            "ext-type"     => [],
+            "restriction"  => [ "public", "need-to-know", "private", "default" ]
         },
         CHILDREN    => [ "?ContactName", "*Description", "*RegistryHandle","?PostalAddress","*Email",
                          "*Telephone", "?Fax", "?Timezone", "*Contact", "*AdditionalData" ],
@@ -1886,7 +1889,24 @@ sub create_time {
     add($iodef,'IncidentReportTime',$timestamp.'Z');
 }
 
+sub to_hashref {
+	my $iodef = shift;
 
+	my $x = XMLin($iodef->out(), KeyAttr => 'Incident');
+	$x = $x->{'Incident'};
+	my $hash = {};
+	my $n = 0;
+	if(ref($x) eq 'ARRAY'){
+		foreach my $i (@{$x}){
+			my $id = $i->{'IncidentID'} || $n++;
+			$hash->{$id} = $i;
+		}
+	} else {
+		my $id = $x->{'IncidentID'} || $n++;
+		$hash->{$id} = $x;
+	}
+	return($hash);
+}
 
 ##----------------------------------------------------------------------------------------
 ##
@@ -1952,7 +1972,7 @@ sub dom_to_hash {
 
     # explore node's attributes
     foreach $n ($node->getAttributes->getValues) {
-	add_to_result($result, $path.$n->getName, $n->getValue);	    
+		add_to_result($result, $path.$n->getName, $n->getValue);	    
     }
 
     # explore node's children
@@ -2245,7 +2265,7 @@ a new empty IODEF message.
 
 =item B<DESC>
 
-C<new> creates and returns a new empty but valid IODEF message, ie containing an xml and a doctype declarations. Use C<add()>, C<create_ident()> and C<create_time()> to add fields to this message.
+C<new> creates and returns a new empty but valid IODEF message, ie containing an xml and a doctype declarations. Use C<add()> and C<create_time()> to add fields to this message.
 
 =item B<EXAMPLES>
 
