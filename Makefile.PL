@@ -4,7 +4,12 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'XML::IODEF',
     VERSION_FROM      => 'lib/XML/IODEF.pm', # finds $VERSION
-    PREREQ_PM         => {XML::DOM => undef, XML::Parser => undef, XML::Parser::Expat => undef}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {
+        XML::DOM => undef, 
+        XML::Parser => undef, 
+        XML::Parser::Expat => undef,
+        DateTime => undef
+    }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/XML/IODEF.pm', # retrieve abstract from module
        AUTHOR         => 'John Green johng@cpan.org, Wes Young <wes@barely3am.com>') : ()),

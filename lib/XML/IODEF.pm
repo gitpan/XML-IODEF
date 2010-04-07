@@ -30,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.07_2';
+our $VERSION = '0.07_3';
 
 our $MAX_ITER = 20;
 
@@ -260,6 +260,7 @@ my $IODEF_DTD = {
             "lang"                  => [], 
             "formatid"              => [],
             "xmlns:iodef"           => [ "urn:ietf:params:xml:ns:iodef-1.0" ],
+            "xmlns:xsi"             => [ "http://www.w3.org/2001/XMLSchema-instance" ],
             "xsi:schemaLocation"    => [ "urn:ietf:params:xmls:schema:iodef-1.0" ]
         },
 		CHILDREN    => [ "+Incident" ],
@@ -969,16 +970,17 @@ sub new {
 
     $doc = new XML::DOM::Document();
 
-    $x = $doc->createDocumentType($DOCTYPE_NAME, $DOCTYPE_SYSID, $DOCTYPE_PUBID); 
-    $doc->setDoctype($x);
+    #$x = $doc->createDocumentType($DOCTYPE_NAME, $DOCTYPE_SYSID, $DOCTYPE_PUBID); 
+    #$doc->setDoctype($x);
     
-    $x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
-    $doc->setXMLDecl($x);
+    #$x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
+    #$doc->setXMLDecl($x);
     
     $iodef->{"DOM"} = $doc;
 
     $iodef->add("version", $IODEF_VERSION);
     $iodef->add("xmlns:iodef", "urn:ietf:params:xml:ns:iodef-1.0");
+    $iodef->add("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
     $iodef->add("xsi:schemaLocation","urn:ietf:params:xmls:schema:iodef-1.0");
 
     return $iodef;
@@ -1028,15 +1030,15 @@ sub in {
     }
 
     # check that the document has a DOCTYPE and an XML declaration
-    if (!defined($doc->getDoctype())) {
-	$x = $doc->createDocumentType($DOCTYPE_NAME, $DOCTYPE_SYSID, $DOCTYPE_PUBID); 
-	$doc->setDoctype($x);
-    }	
+    #if (!defined($doc->getDoctype())) {
+	#$x = $doc->createDocumentType($DOCTYPE_NAME, $DOCTYPE_SYSID, $DOCTYPE_PUBID); 
+	#$doc->setDoctype($x);
+    #}	
     
-    if (!defined($doc->getXMLDecl())) {
-	$x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
-	$doc->setXMLDecl($x);
-    }
+    #if (!defined($doc->getXMLDecl())) {
+	#$x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
+	#$doc->setXMLDecl($x);
+    #}
 
     $iodef->{"DOM"} = $doc;
 
@@ -1887,25 +1889,6 @@ sub create_time {
     
     my $timestamp = DateTime->from_epoch(epoch => $utc);
     add($iodef,'IncidentReportTime',$timestamp.'Z');
-}
-
-sub to_hashref {
-	my $iodef = shift;
-
-	my $x = XMLin($iodef->out(), KeyAttr => 'Incident');
-	$x = $x->{'Incident'};
-	my $hash = {};
-	my $n = 0;
-	if(ref($x) eq 'ARRAY'){
-		foreach my $i (@{$x}){
-			my $id = $i->{'IncidentID'} || $n++;
-			$hash->{$id} = $i;
-		}
-	} else {
-		my $id = $x->{'IncidentID'} || $n++;
-		$hash->{$id} = $x;
-	}
-	return($hash);
 }
 
 ##----------------------------------------------------------------------------------------
