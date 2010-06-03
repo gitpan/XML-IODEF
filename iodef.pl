@@ -30,4 +30,4 @@ $iodef->add('IncidentEventDataFlowSystemServiceip_protocol','UDP');
 
 $iodef->add('IncidentEventDataDetectTime','2008-01-01 00:00:00:00Z');
 
-die $iodef->out();
+die Dumper($iodef->to_hash());

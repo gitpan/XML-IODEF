@@ -30,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.07_3';
+our $VERSION = '0.07';
 
 our $MAX_ITER = 20;
 

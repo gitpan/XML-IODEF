@@ -1,5 +1,14 @@
 Revision history for Perl extension XML::IODEF
 
+0.07   2010-06-03
+    - Update to changes file
+    - 0.07 release
+
+0.07_3 2010-04-06
+    - minor fix to xmlns decloration, version bump to _3
+    - merging with sep branch; removing to_hashref, should use LibXML for this sort of thing
+    - minor fix to the ->in() fcnt to remove un-needed DOCTYPE, etc
+
 0.07_2 2010-01-05
 	- Development Release
 	- added function: to_hashref() which provides a suppliment function of to_hash (XML::Simple-like).
