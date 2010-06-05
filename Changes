@@ -1,8 +1,11 @@
 Revision history for Perl extension XML::IODEF
 
+0.08   2010-06-05
+    - fixed missing Makefile.PL deps
+    - fixed minor test.pl (make test) bugs due to changes in RFC 5070 format
+
 0.07   2010-06-03
-    - Update to changes file
-    - 0.07 release
+    - added RFC 5070 (2007) compatability
 
 0.07_3 2010-04-06
     - minor fix to xmlns decloration, version bump to _3

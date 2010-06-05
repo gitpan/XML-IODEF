@@ -8,7 +8,8 @@ WriteMakefile(
         XML::DOM => undef, 
         XML::Parser => undef, 
         XML::Parser::Expat => undef,
-        DateTime => undef
+        DateTime => undef,
+        XML::Simple => undef,
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/XML/IODEF.pm', # retrieve abstract from module

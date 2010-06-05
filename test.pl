@@ -60,8 +60,8 @@ eval {
     $iodef = new XML::IODEF();
 
     check("new XML::IODEF did not return a proper IODEF message.")
-	if ($iodef->out !~ '<\?xml version="1.0" encoding="UTF-8"\?>.*
-<!DOCTYPE IODEF-Document PUBLIC "-//IETF//DTD RFC 5070 IODEF v1.0//EN" "IODEF-Document.dtd">.*');
+    if($iodef->out() !~ '<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"/>');
+
 };
 check($@);
 
@@ -121,7 +121,7 @@ eval {
     $iodef->add("Incidentrestriction", "need-to-know");
     $iodef->add("IncidentContactrole", "admin");
     check("add() did not perform as expected when adding attributes.")
-	if ($iodef->out !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident purpose="reporting" restriction="need-to-know"><Contact role="admin"/></Incident></IODEF-Document>.*');
+        if($iodef->out() !~ '<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident purpose="reporting" restriction="need-to-know"><Contact role="admin"/></Incident></IODEF-Document>');
 };
 check($@);
 
@@ -205,7 +205,7 @@ $iodef->add("IncidentAdditionalDatameaning", "data1");
 $iodef->add("IncidentAdditionalData", "value2", "data2");
 $iodef->add("IncidentAdditionalData", "value3", "data3", "string");
 check("add() did not handle AdditionalData properly.")
-    if ($iodef->out() !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><AdditionalData meaning="data3" dtype="string">value3</AdditionalData><AdditionalData meaning="data2" dtype="string">value2</AdditionalData><AdditionalData meaning="data1">value1</AdditionalData><AdditionalData>value0</AdditionalData></Incident></IODEF-Document>.*');
+    if($iodef->out() !~ '<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><AdditionalData meaning="data3" dtype="string">value3</AdditionalData><AdditionalData meaning="data2" dtype="string">value2</AdditionalData><AdditionalData meaning="data1">value1</AdditionalData><AdditionalData>value0</AdditionalData></Incident></IODEF-Document>');
 
 ok(1);
 
@@ -306,8 +306,7 @@ $iodef = new XML::IODEF;
 
 $iodef->add("IncidentAdditionalData", "$string1");
 check("add() did not handle special characters encoding according to XML specs.")
-    if ($iodef->out() !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><AdditionalData>hi bob&amp;&quot;&amp;amp;&amp;#x0065</AdditionalData></Incident></IODEF-Document>.*');
-
+    if($iodef->out() !~ '<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><AdditionalData>hi bob&amp;&quot;&amp;amp;&amp;#x0065</AdditionalData></Incident></IODEF-Document>');
 ok(1);
 
 
@@ -325,7 +324,7 @@ $iodef->add("IncidentEventDataExpectationDescription",  "Do Something");
 $iodef->add("IncidentDescription", "The second description");
 $iodef->add("IncidentEventDataExpectationDescription",  "Please, and again");
 check("add() call bug still here!")
-    if ($iodef->out() !~ '.*<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><Description>The second description</Description><Description>The first description</Description><EventData><Expectation><Description>Please, and again</Description><Description>Do Something</Description></Expectation></EventData></Incident></IODEF-Document>.*');
+    if($iodef->out() !~ '<IODEF-Document version="1.0" xmlns:iodef="urn:ietf:params:xml:ns:iodef-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xmls:schema:iodef-1.0"><Incident><Description>The second description</Description><Description>The first description</Description><EventData><Expectation><Description>Please, and again</Description><Description>Do Something</Description></Expectation></EventData></Incident></IODEF-Document>');
 
 ok(1);
 
