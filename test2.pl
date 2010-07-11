@@ -1,11 +1,10 @@
 #!lusr/bin/perl -w
 
 use strict;
-#use lib './lib';
+use lib './lib';
 
 use XML::IODEF;
 use Data::Dumper;
-use XML::Parser;
 
 my $iodef = XML::IODEF->new();
 
@@ -24,10 +23,12 @@ $iodef->add('IncidentEventDataFlowSystemNodeNodeRole','bad-actor');
 $iodef->add('IncidentEventDataFlowSystemNodeAddress','10.205.1.2');
 $iodef->add('IncidentEventDataFlowSystemcategory','source');
 
-$iodef->add('IncidentIncidentID','77');
 $iodef->add('IncidentEventDataFlowSystemServicePort','6667');
 $iodef->add('IncidentEventDataFlowSystemServiceip_protocol','UDP');
 
 $iodef->add('IncidentEventDataDetectTime','2008-01-01 00:00:00:00Z');
 
-die Dumper($iodef->to_hash());
+my $i2 = XML::IODEF->new();
+$i2->in($iodef->out());
+warn $iodef->out();
+warn $i2->out();

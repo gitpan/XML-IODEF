@@ -30,7 +30,7 @@ our @EXPORT = qw(xml_encode
 		 set_doctype_pubid
 		 );
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 our $MAX_ITER = 20;
 
@@ -973,8 +973,8 @@ sub new {
     #$x = $doc->createDocumentType($DOCTYPE_NAME, $DOCTYPE_SYSID, $DOCTYPE_PUBID); 
     #$doc->setDoctype($x);
     
-    #$x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
-    #$doc->setXMLDecl($x);
+    $x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
+    $doc->setXMLDecl($x);
     
     $iodef->{"DOM"} = $doc;
 
@@ -1035,10 +1035,10 @@ sub in {
 	#$doc->setDoctype($x);
     #}	
     
-    #if (!defined($doc->getXMLDecl())) {
-	#$x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
-	#$doc->setXMLDecl($x);
-    #}
+    if (!defined($doc->getXMLDecl())) {
+		$x = $doc->createXMLDecl($XML_DECL_VER, $XML_DECL_ENC);
+		$doc->setXMLDecl($x);
+    }
 
     $iodef->{"DOM"} = $doc;
 

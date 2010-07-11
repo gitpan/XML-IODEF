@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               XML-IODEF
-version:            0.08
+version:            0.09
 abstract:           A module for building/parsing IODEF messages
 author:
     - John Green johng@cpan.org, Wes Young <wes@barely3am.com>
@@ -20,7 +20,7 @@ no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.50
+generated_by:       ExtUtils::MakeMaker version 6.54
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4

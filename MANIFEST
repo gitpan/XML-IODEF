@@ -1,5 +1,4 @@
 Changes
-iodef.pl
 lib/XML/IODEF.pm
 LICENSE
 Makefile.PL
@@ -8,4 +7,5 @@ README
 rebuild.sh
 t/XML-IODEF.t
 test.pl
+test2.pl
 META.yml                                 Module meta-data (added by MakeMaker)
