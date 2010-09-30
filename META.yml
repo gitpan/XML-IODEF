@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               XML-IODEF
-version:            0.011_1
+version:            0.11_1
 abstract:           Perl extension for blah blah blah
 author:
     - John Green johng@cpan.org, Wes Young <wes@barely3am.com>

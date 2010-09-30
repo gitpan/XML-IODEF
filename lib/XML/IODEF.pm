@@ -4,7 +4,7 @@ use 5.008008;
 use strict;
 use warnings;
 
-our $VERSION = '0.011_1';
+our $VERSION = '0.11_1';
 
 use XML::Compile::Schema;
 use XML::Compile::Util qw/pack_type/;
