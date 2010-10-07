@@ -8,5 +8,7 @@ MANIFEST			This list of files
 README
 rebuild.sh
 t/XML-IODEF.t
+Template.txt
 test.pl
+XML-IODEF-0.11_1.tar.gz
 META.yml                                 Module meta-data (added by MakeMaker)

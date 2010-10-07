@@ -4,7 +4,7 @@ use 5.008008;
 use strict;
 use warnings;
 
-our $VERSION = '0.11_1';
+our $VERSION = '0.11_2';
 
 use XML::Compile::Schema;
 use XML::Compile::Util qw/pack_type/;
@@ -18,25 +18,29 @@ sub new {
     my $args = shift; 
     my $self = {};
     bless($self,$class);
-    $self->_hash($args);
+
+    my $type    = pack_type 'urn:ietf:params:xml:ns:iodef-1.0', 'IODEF-Document';
+    my $s       = XML::Compile::Schema->new('iodef.xsd');
+    my $doc     = XML::LibXML::Document->new('1.0', 'UTF-8');
+    my $writer  = $s->compile(WRITER => $type, prefixes => [ iodef => 'urn:ietf:params:xml:ns:iodef-1.0' ]);
+    $self->writer($writer);
+
     return($self);
 }
 
 sub out {
     my $self 	= shift;
+    my $hash    = shift;
     my $pretty  = shift; 
-    my $type    = pack_type 'urn:ietf:params:xml:ns:iodef-1.0', 'IODEF-Document';
-    my $s       = XML::Compile::Schema->new('iodef.xsd');
     my $doc     = XML::LibXML::Document->new('1.0', 'UTF-8');
-    my $write   = $s->compile(WRITER => $type, prefixes => [ iodef => 'urn:ietf:params:xml:ns:iodef-1.0' ]);
-    my $xml     = $write->($doc, $self->_hash());
+    my $xml     = $self->writer->($doc, $hash);
     return $xml->toString($pretty);
 }
 
-sub _hash { 
+sub writer {
     my ($self,$v) = @_;
-    $self->{'_hash'} = $v if(defined($v));
-    return($self->{'_hash'});
+    $self->{'_writer'} = $v if(defined($v));
+    return $self->{'_writer'};
 }
 
 # Preloaded methods go here.

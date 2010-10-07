@@ -5,8 +5,10 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test::More tests => 1;
-BEGIN { use_ok('XML::IODEF') };
+use Test::More tests => 2;
+
+use_ok('XML::Compile');
+use_ok('XML::IODEF');
 
 #########################
 

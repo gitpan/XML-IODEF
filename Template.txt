@@ -1,0 +1,1115 @@
+# Describing complex {urn:ietf:params:xml:ns:iodef-1.0}IODEF-Document
+#
+# Produced by XML::Compile::Translate::Template version 1.16
+#          on Thu Oct  7 09:28:57 2010
+#
+# BE WARNED: in most cases, the example below cannot be used without
+# interpretation.  The comments will guide you.
+#
+# xmlns:x0        urn:ietf:params:xml:ns:iodef-1.0
+# xmlns:xs        http://www.w3.org/2001/XMLSchema
+
+{ # sequence of Incident
+
+  # occurs 1 <= # <= unbounded times
+  Incident =>
+  [ { # sequence of IncidentID, AlternativeID, RelatedActivity,
+      #   DetectTime, StartTime, EndTime, ReportTime, Description,
+      #   Assessment, Method, Contact, EventData, History, AdditionalData
+
+      # IncidentID is simple value with attributes
+      IncidentID =>
+      { # is a xs:string
+        # attribute name is required
+        name => "example",
+
+        # is a xs:string
+        instance => "example",
+
+        # is a xs:NMTOKEN
+        # attribute restriction has default
+        # Enum: default need-to-know private public
+        restriction => "nmtoken",
+
+        # string content of the container
+        _ => "Hello, World!", },
+
+      # is optional
+      AlternativeID =>
+      { # sequence of IncidentID
+
+        # IncidentID is simple value with attributes
+        # occurs 1 <= # <= unbounded times
+        IncidentID =>
+        [ { # is a xs:string
+            # attribute name is required
+            name => "example",
+
+            # is a xs:string
+            instance => "example",
+
+            # is a xs:NMTOKEN
+            # attribute restriction has default
+            # Enum: default need-to-know private public
+            restriction => "nmtoken",
+
+            # string content of the container
+            _ => "Hello, World!", }, ],
+
+        # is a xs:NMTOKEN
+        # Enum: default need-to-know private public
+        restriction => "nmtoken", },
+
+      # is optional
+      RelatedActivity =>
+      { # choice of IncidentID, URL
+
+        # IncidentID is simple value with attributes
+        # occurs 1 <= # <= unbounded times
+        IncidentID =>
+        [ { # is a xs:string
+            # attribute name is required
+            name => "example",
+
+            # is a xs:string
+            instance => "example",
+
+            # is a xs:NMTOKEN
+            # attribute restriction has default
+            # Enum: default need-to-know private public
+            restriction => "nmtoken",
+
+            # string content of the container
+            _ => "Hello, World!", }, ],
+
+        # is a xs:anyURI
+        # occurs 1 <= # <= unbounded times
+        URL =>  [ "http://example.com", ],
+
+        # is a xs:NMTOKEN
+        # Enum: default need-to-know private public
+        restriction => "nmtoken", },
+
+      # is a xs:dateTime
+      # is optional
+      DetectTime => "2006-10-06T00:23:02Z",
+
+      # is a xs:dateTime
+      # is optional
+      StartTime => "2006-10-06T00:23:02Z",
+
+      # is a xs:dateTime
+      # is optional
+      EndTime => "2006-10-06T00:23:02Z",
+
+      # is a xs:dateTime
+      ReportTime => "2006-10-06T00:23:02Z",
+
+      # Description is simple value with attributes
+      # occurs any number of times
+      Description =>
+      [ { # is a xs:language
+          lang => "nl-NL",
+
+          # string content of the container
+          _ => "Hello, World!", }, ],
+
+      # occurs 1 <= # <= unbounded times
+      Assessment =>
+      [ { # sequence of cho_Impact, Counter, Confidence, AdditionalData
+
+          # choice of Impact, TimeImpact, MonetaryImpact
+          # occurs 1 <= # <= unbounded times
+          cho_Impact => 
+          [
+              # Impact is simple value with attributes
+              Impact =>
+              { # is a xs:language
+                lang => "nl-NL",
+
+                # is a xs:NMTOKEN
+                # Enum: high low medium
+                severity => "nmtoken",
+
+                # is a xs:NMTOKEN
+                # Enum: failed succeeded
+                completion => "nmtoken",
+
+                # is a xs:NMTOKEN
+                # attribute type has default
+                # Enum: admin dos ext-value extortion file info-leak
+                #    misconfiguration policy recon social-engineering
+                #    unknown user
+                type => "nmtoken",
+
+                # is a xs:string
+                'ext-type' => "example",
+
+                # string content of the container
+                _ => "Hello, World!", },
+
+              # TimeImpact is simple value with attributes
+              TimeImpact =>
+              { # is a xs:NMTOKEN
+                # Enum: high low medium
+                severity => "nmtoken",
+
+                # is a xs:NMTOKEN
+                # attribute metric is required
+                # Enum: downtime elapsed ext-value labor
+                metric => "nmtoken",
+
+                # is a xs:string
+                'ext-metric' => "example",
+
+                # is a xs:NMTOKEN
+                # Enum: day ext-value hour minute month quarter second
+                #    year
+                duration => "nmtoken",
+
+                # is a xs:string
+                'ext-duration' => "example",
+
+                # string content of the container
+                _ => "Hello, World!", },
+
+              # MonetaryImpact is simple value with attributes
+              MonetaryImpact =>
+              { # is a xs:NMTOKEN
+                # Enum: high low medium
+                severity => "nmtoken",
+
+                # is a xs:string
+                currency => "example",
+
+                # string content of the container
+                _ => "Hello, World!", }, },
+          ],
+
+          # Counter is simple value with attributes
+          # occurs any number of times
+          Counter =>
+          [ { # is a xs:NMTOKEN
+              # attribute type is required
+              # Enum: alert byte event ext-value flow host message
+              #    organization packet session site
+              type => "nmtoken",
+
+              # is a xs:string
+              'ext-type' => "example",
+
+              # is a xs:string
+              meaning => "example",
+
+              # is a xs:NMTOKEN
+              # Enum: day ext-value hour minute month quarter second
+              #    year
+              duration => "nmtoken",
+
+              # is a xs:string
+              'ext-duration' => "example",
+
+              # string content of the container
+              _ => "Hello, World!", }, ],
+
+          # Confidence has a mixed content
+          # is optional
+          Confidence =>
+          { # is a xs:NMTOKEN
+            # attribute rating is required
+            # Enum: high low medium numeric unknown
+            rating => "nmtoken",
+
+            # mixed content cannot be processed automatically
+            _ => XML::LibXML::Element->new('Confidence'), },
+
+          # AdditionalData has a mixed content
+          # occurs any number of times
+          AdditionalData =>
+          [ { # is a xs:NMTOKEN
+              # attribute dtype is required
+              # Enum: boolean byte character csv date-time ext-value
+              #    file frame integer ipv4-packet ipv6-packet ntpstamp
+              #    packet path portlist real string url winreg xml
+              dtype => "nmtoken",
+
+              # is a xs:string
+              'ext-dtype' => "example",
+
+              # is a xs:string
+              meaning => "example",
+
+              # is a xs:string
+              formatid => "example",
+
+              # is a xs:NMTOKEN
+              # Enum: default need-to-know private public
+              restriction => "nmtoken",
+
+              # mixed content cannot be processed automatically
+              _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+          # is a xs:NMTOKEN
+          # Enum: actual potential
+          occurrence => "nmtoken",
+
+          # is a xs:NMTOKEN
+          # Enum: default need-to-know private public
+          restriction => "nmtoken", }, ],
+
+      # occurs any number of times
+      Method =>
+      [ { # sequence of cho_Reference, AdditionalData
+
+          # choice of Reference, Description
+          # occurs 1 <= # <= unbounded times
+          cho_Reference => 
+          [ { Reference =>
+              { # sequence of ReferenceName, URL, Description
+
+                # ReferenceName is simple value with attributes
+                ReferenceName =>
+                { # is a xs:language
+                  lang => "nl-NL",
+
+                  # string content of the container
+                  _ => "Hello, World!", },
+
+                # is a xs:anyURI
+                # occurs any number of times
+                URL =>  [ "http://example.com", ],
+
+                # Description is simple value with attributes
+                # occurs any number of times
+                Description =>
+                [ { # is a xs:language
+                    lang => "nl-NL",
+
+                    # string content of the container
+                    _ => "Hello, World!", }, ], },
+
+              # Description is simple value with attributes
+              Description =>
+              { # is a xs:language
+                lang => "nl-NL",
+
+                # string content of the container
+                _ => "Hello, World!", }, },
+          ],
+
+          # AdditionalData has a mixed content
+          # occurs any number of times
+          AdditionalData =>
+          [ { # is a xs:NMTOKEN
+              # attribute dtype is required
+              # Enum: boolean byte character csv date-time ext-value
+              #    file frame integer ipv4-packet ipv6-packet ntpstamp
+              #    packet path portlist real string url winreg xml
+              dtype => "nmtoken",
+
+              # is a xs:string
+              'ext-dtype' => "example",
+
+              # is a xs:string
+              meaning => "example",
+
+              # is a xs:string
+              formatid => "example",
+
+              # is a xs:NMTOKEN
+              # Enum: default need-to-know private public
+              restriction => "nmtoken",
+
+              # mixed content cannot be processed automatically
+              _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+          # is a xs:NMTOKEN
+          # Enum: default need-to-know private public
+          restriction => "nmtoken", }, ],
+
+      # occurs 1 <= # <= unbounded times
+      Contact =>
+      [ { # sequence of ContactName, Description, RegistryHandle,
+          #   PostalAddress, Email, Telephone, Fax, Timezone, Contact,
+          #   AdditionalData
+
+          # ContactName is simple value with attributes
+          # is optional
+          ContactName =>
+          { # is a xs:language
+            lang => "nl-NL",
+
+            # string content of the container
+            _ => "Hello, World!", },
+
+          # Description is simple value with attributes
+          # occurs any number of times
+          Description =>
+          [ { # is a xs:language
+              lang => "nl-NL",
+
+              # string content of the container
+              _ => "Hello, World!", }, ],
+
+          # RegistryHandle is simple value with attributes
+          # occurs any number of times
+          RegistryHandle =>
+          [ { # is a xs:NMTOKEN
+              # Enum: afrinic apnic arin ext-value internic lacnic local
+              #    ripe
+              registry => "nmtoken",
+
+              # is a xs:string
+              'ext-registry' => "example",
+
+              # string content of the container
+              _ => "Hello, World!", }, ],
+
+          # PostalAddress is simple value with attributes
+          # is optional
+          PostalAddress =>
+          { # is a xs:language
+            lang => "nl-NL",
+
+            # is a xs:string
+            meaning => "example",
+
+            # string content of the container
+            _ => "Hello, World!", },
+
+          # Email is simple value with attributes
+          # occurs any number of times
+          Email =>
+          [ { # is a xs:string
+              meaning => "example",
+
+              # string content of the container
+              _ => "Hello, World!", }, ],
+
+          # Telephone is simple value with attributes
+          # occurs any number of times
+          Telephone =>
+          [ { # is a xs:string
+              meaning => "example",
+
+              # string content of the container
+              _ => "Hello, World!", }, ],
+
+          # Fax is simple value with attributes
+          # is optional
+          Fax =>
+          { # is a xs:string
+            meaning => "example",
+
+            # string content of the container
+            _ => "Hello, World!", },
+
+          # is a xs:string
+          # is optional
+          # Pattern: Z|[\+\-](0[0-9]|1[0-4]):[0-5][0-9]
+          Timezone => "example",
+
+          # probably a recursive complex
+          # occurs any number of times
+          Contact => {},
+
+          # AdditionalData has a mixed content
+          # occurs any number of times
+          AdditionalData =>
+          [ { # is a xs:NMTOKEN
+              # attribute dtype is required
+              # Enum: boolean byte character csv date-time ext-value
+              #    file frame integer ipv4-packet ipv6-packet ntpstamp
+              #    packet path portlist real string url winreg xml
+              dtype => "nmtoken",
+
+              # is a xs:string
+              'ext-dtype' => "example",
+
+              # is a xs:string
+              meaning => "example",
+
+              # is a xs:string
+              formatid => "example",
+
+              # is a xs:NMTOKEN
+              # Enum: default need-to-know private public
+              restriction => "nmtoken",
+
+              # mixed content cannot be processed automatically
+              _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+          # is a xs:NMTOKEN
+          # attribute role is required
+          # Enum: admin cc creator ext-value irt tech
+          role => "nmtoken",
+
+          # is a xs:string
+          'ext-role' => "example",
+
+          # is a xs:NMTOKEN
+          # attribute type is required
+          # Enum: ext-value organization person
+          type => "nmtoken",
+
+          # is a xs:string
+          'ext-type' => "example",
+
+          # is a xs:NMTOKEN
+          # Enum: default need-to-know private public
+          restriction => "nmtoken", }, ],
+
+      # occurs any number of times
+      EventData =>
+      [ { # sequence of Description, DetectTime, StartTime, EndTime,
+          #   Contact, Assessment, Method, Flow, Expectation, Record,
+          #   EventData, AdditionalData
+
+          # Description is simple value with attributes
+          # occurs any number of times
+          Description =>
+          [ { # is a xs:language
+              lang => "nl-NL",
+
+              # string content of the container
+              _ => "Hello, World!", }, ],
+
+          # is a xs:dateTime
+          # is optional
+          DetectTime => "2006-10-06T00:23:02Z",
+
+          # is a xs:dateTime
+          # is optional
+          StartTime => "2006-10-06T00:23:02Z",
+
+          # is a xs:dateTime
+          # is optional
+          EndTime => "2006-10-06T00:23:02Z",
+
+          # complex structure shown above
+          # occurs any number of times
+          Contact => {},
+
+          # complex structure shown above
+          # is optional
+          Assessment => {},
+
+          # complex structure shown above
+          # occurs any number of times
+          Method => {},
+
+          # occurs any number of times
+          Flow =>
+          [ { # sequence of System
+
+              # occurs 1 <= # <= unbounded times
+              System =>
+              [ { # sequence of Node, Service, OperatingSystem, Counter,
+                  #   Description, AdditionalData
+                  Node =>
+                  { # sequence of cho_NodeName, Location, DateTime, NodeRole, Counter
+
+                    # choice of NodeName, Address
+                    # occurs 1 <= # <= unbounded times
+                    cho_NodeName => 
+                    [
+                        # NodeName is simple value with attributes
+                        # is optional
+                        NodeName =>
+                        { # is a xs:language
+                          lang => "nl-NL",
+
+                          # string content of the container
+                          _ => "Hello, World!", },
+
+                        # Address is simple value with attributes
+                        # occurs any number of times
+                        Address =>
+                        [ { # is a xs:NMTOKEN
+                            # attribute category has default
+                            # Enum: asn atm e-mail ext-value ipv4-addr ipv4-net
+                            #    ipv4-net-mask ipv6-addr ipv6-net ipv6-net-mask mac
+                            category => "nmtoken",
+
+                            # is a xs:string
+                            'ext-category' => "example",
+
+                            # is a xs:string
+                            'vlan-name' => "example",
+
+                            # is a xs:integer
+                            'vlan-num' => 42,
+
+                            # string content of the container
+                            _ => "Hello, World!", }, ], },
+                    ],
+
+                    # Location is simple value with attributes
+                    # is optional
+                    Location =>
+                    { # is a xs:language
+                      lang => "nl-NL",
+
+                      # string content of the container
+                      _ => "Hello, World!", },
+
+                    # is a xs:dateTime
+                    # is optional
+                    DateTime => "2006-10-06T00:23:02Z",
+
+                    # NodeRole is simple value with attributes
+                    # occurs any number of times
+                    NodeRole =>
+                    [ { # is a xs:language
+                        lang => "nl-NL",
+
+                        # is a xs:NMTOKEN
+                        # attribute category is required
+                        # Enum: application client credential database directory
+                        #    ext-value file ftp infra log mail messaging name p2p
+                        #    print server-internal server-public streaming voice
+                        #    www
+                        category => "nmtoken",
+
+                        # is a xs:string
+                        'ext-category' => "example",
+
+                        # string content of the container
+                        _ => "Hello, World!", }, ],
+
+                    # Counter is simple value with attributes
+                    # occurs any number of times
+                    Counter =>
+                    [ { # is a xs:NMTOKEN
+                        # attribute type is required
+                        # Enum: alert byte event ext-value flow host message
+                        #    organization packet session site
+                        type => "nmtoken",
+
+                        # is a xs:string
+                        'ext-type' => "example",
+
+                        # is a xs:string
+                        meaning => "example",
+
+                        # is a xs:NMTOKEN
+                        # Enum: day ext-value hour minute month quarter second
+                        #    year
+                        duration => "nmtoken",
+
+                        # is a xs:string
+                        'ext-duration' => "example",
+
+                        # string content of the container
+                        _ => "Hello, World!", }, ], },
+
+                  # occurs any number of times
+                  Service =>
+                  [ { # sequence of choice, ProtoType, ProtoCode, ProtoField, Application
+
+                      # choice of Port, Portlist
+                      # is optional
+
+                      # is a xs:integer
+                      Port => 42,
+
+                      # is a xs:string
+                      # Pattern: \d+(\-\d+)?(,\d+(\-\d+)?)*
+                      Portlist => "example",
+
+                      # is a xs:integer
+                      # is optional
+                      ProtoType => 42,
+
+                      # is a xs:integer
+                      # is optional
+                      ProtoCode => 42,
+
+                      # is a xs:integer
+                      # is optional
+                      ProtoField => 42,
+
+                      # is optional
+                      Application =>
+                      { # sequence of URL
+
+                        # is a xs:anyURI
+                        # is optional
+                        URL => "http://example.com",
+
+                        # is a xs:string
+                        # attribute swid has default
+                        swid => "example",
+
+                        # is a xs:string
+                        # attribute configid has default
+                        configid => "example",
+
+                        # is a xs:string
+                        vendor => "example",
+
+                        # is a xs:string
+                        family => "example",
+
+                        # is a xs:string
+                        name => "example",
+
+                        # is a xs:string
+                        version => "example",
+
+                        # is a xs:string
+                        patch => "example", },
+
+                      # is a xs:integer
+                      # attribute ip_protocol is required
+                      ip_protocol => 42, }, ],
+
+                  # occurs any number of times
+                  OperatingSystem =>
+                  [ { # sequence of URL
+
+                      # is a xs:anyURI
+                      # is optional
+                      URL => "http://example.com",
+
+                      # is a xs:string
+                      # attribute swid has default
+                      swid => "example",
+
+                      # is a xs:string
+                      # attribute configid has default
+                      configid => "example",
+
+                      # is a xs:string
+                      vendor => "example",
+
+                      # is a xs:string
+                      family => "example",
+
+                      # is a xs:string
+                      name => "example",
+
+                      # is a xs:string
+                      version => "example",
+
+                      # is a xs:string
+                      patch => "example", }, ],
+
+                  # Counter is simple value with attributes
+                  # occurs any number of times
+                  Counter =>
+                  [ { # is a xs:NMTOKEN
+                      # attribute type is required
+                      # Enum: alert byte event ext-value flow host message
+                      #    organization packet session site
+                      type => "nmtoken",
+
+                      # is a xs:string
+                      'ext-type' => "example",
+
+                      # is a xs:string
+                      meaning => "example",
+
+                      # is a xs:NMTOKEN
+                      # Enum: day ext-value hour minute month quarter second
+                      #    year
+                      duration => "nmtoken",
+
+                      # is a xs:string
+                      'ext-duration' => "example",
+
+                      # string content of the container
+                      _ => "Hello, World!", }, ],
+
+                  # Description is simple value with attributes
+                  # occurs any number of times
+                  Description =>
+                  [ { # is a xs:language
+                      lang => "nl-NL",
+
+                      # string content of the container
+                      _ => "Hello, World!", }, ],
+
+                  # AdditionalData has a mixed content
+                  # occurs any number of times
+                  AdditionalData =>
+                  [ { # is a xs:NMTOKEN
+                      # attribute dtype is required
+                      # Enum: boolean byte character csv date-time ext-value
+                      #    file frame integer ipv4-packet ipv6-packet ntpstamp
+                      #    packet path portlist real string url winreg xml
+                      dtype => "nmtoken",
+
+                      # is a xs:string
+                      'ext-dtype' => "example",
+
+                      # is a xs:string
+                      meaning => "example",
+
+                      # is a xs:string
+                      formatid => "example",
+
+                      # is a xs:NMTOKEN
+                      # Enum: default need-to-know private public
+                      restriction => "nmtoken",
+
+                      # mixed content cannot be processed automatically
+                      _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+                  # is a xs:NMTOKEN
+                  # Enum: default need-to-know private public
+                  restriction => "nmtoken",
+
+                  # is a xs:string
+                  interface => "example",
+
+                  # is a xs:NMTOKEN
+                  # Enum: ext-value infrastructure intermediate sensor
+                  #    source target
+                  category => "nmtoken",
+
+                  # is a xs:string
+                  'ext-category' => "example",
+
+                  # is a xs:NMTOKEN
+                  # attribute spoofed has default
+                  # Enum: no unknown yes
+                  spoofed => "nmtoken", }, ], }, ],
+
+          # occurs any number of times
+          Expectation =>
+          [ { # sequence of Description, StartTime, EndTime, Contact
+
+              # Description is simple value with attributes
+              # occurs any number of times
+              Description =>
+              [ { # is a xs:language
+                  lang => "nl-NL",
+
+                  # string content of the container
+                  _ => "Hello, World!", }, ],
+
+              # is a xs:dateTime
+              # is optional
+              StartTime => "2006-10-06T00:23:02Z",
+
+              # is a xs:dateTime
+              # is optional
+              EndTime => "2006-10-06T00:23:02Z",
+
+              # complex structure shown above
+              # is optional
+              Contact => {},
+
+              # is a xs:NMTOKEN
+              # attribute restriction has default
+              # Enum: default need-to-know private public
+              restriction => "nmtoken",
+
+              # is a xs:NMTOKEN
+              # Enum: high low medium
+              severity => "nmtoken",
+
+              # is a xs:NMTOKEN
+              # attribute action has default
+              # Enum: block-host block-network block-port contact-sender
+              #    contact-source-site contact-target-site ext-value
+              #    investigate nothing other rate-limit-host
+              #    rate-limit-network rate-limit-port remediate-other
+              #    status-new-info status-triage
+              action => "nmtoken",
+
+              # is a xs:string
+              'ext-action' => "example", }, ],
+
+          # is optional
+          Record =>
+          { # sequence of RecordData
+
+            # occurs 1 <= # <= unbounded times
+            RecordData =>
+            [ { # sequence of DateTime, Description, Application,
+                #   RecordPattern, RecordItem, AdditionalData
+
+                # is a xs:dateTime
+                # is optional
+                DateTime => "2006-10-06T00:23:02Z",
+
+                # Description is simple value with attributes
+                # occurs any number of times
+                Description =>
+                [ { # is a xs:language
+                    lang => "nl-NL",
+
+                    # string content of the container
+                    _ => "Hello, World!", }, ],
+
+                # complex structure shown above
+                # is optional
+                Application => {},
+
+                # RecordPattern is simple value with attributes
+                # occurs any number of times
+                RecordPattern =>
+                [ { # is a xs:NMTOKEN
+                    # attribute type is required
+                    # Enum: binary ext-value regex xpath
+                    type => "nmtoken",
+
+                    # is a xs:string
+                    'ext-type' => "example",
+
+                    # is a xs:integer
+                    offset => 42,
+
+                    # is a xs:NMTOKEN
+                    # attribute offsetunit has default
+                    # Enum: byte ext-value line
+                    offsetunit => "nmtoken",
+
+                    # is a xs:string
+                    'ext-offsetunit' => "example",
+
+                    # is a xs:integer
+                    instance => 42,
+
+                    # string content of the container
+                    _ => "Hello, World!", }, ],
+
+                # RecordItem has a mixed content
+                # occurs 1 <= # <= unbounded times
+                RecordItem =>
+                [ { # is a xs:NMTOKEN
+                    # attribute dtype is required
+                    # Enum: boolean byte character csv date-time ext-value
+                    #    file frame integer ipv4-packet ipv6-packet ntpstamp
+                    #    packet path portlist real string url winreg xml
+                    dtype => "nmtoken",
+
+                    # is a xs:string
+                    'ext-dtype' => "example",
+
+                    # is a xs:string
+                    meaning => "example",
+
+                    # is a xs:string
+                    formatid => "example",
+
+                    # is a xs:NMTOKEN
+                    # Enum: default need-to-know private public
+                    restriction => "nmtoken",
+
+                    # mixed content cannot be processed automatically
+                    _ => XML::LibXML::Element->new('RecordItem'), }, ],
+
+                # AdditionalData has a mixed content
+                # occurs any number of times
+                AdditionalData =>
+                [ { # is a xs:NMTOKEN
+                    # attribute dtype is required
+                    # Enum: boolean byte character csv date-time ext-value
+                    #    file frame integer ipv4-packet ipv6-packet ntpstamp
+                    #    packet path portlist real string url winreg xml
+                    dtype => "nmtoken",
+
+                    # is a xs:string
+                    'ext-dtype' => "example",
+
+                    # is a xs:string
+                    meaning => "example",
+
+                    # is a xs:string
+                    formatid => "example",
+
+                    # is a xs:NMTOKEN
+                    # Enum: default need-to-know private public
+                    restriction => "nmtoken",
+
+                    # mixed content cannot be processed automatically
+                    _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+                # is a xs:NMTOKEN
+                # Enum: default need-to-know private public
+                restriction => "nmtoken", }, ],
+
+            # is a xs:NMTOKEN
+            # Enum: default need-to-know private public
+            restriction => "nmtoken", },
+
+          # probably a recursive complex
+          # occurs any number of times
+          EventData => {},
+
+          # AdditionalData has a mixed content
+          # occurs any number of times
+          AdditionalData =>
+          [ { # is a xs:NMTOKEN
+              # attribute dtype is required
+              # Enum: boolean byte character csv date-time ext-value
+              #    file frame integer ipv4-packet ipv6-packet ntpstamp
+              #    packet path portlist real string url winreg xml
+              dtype => "nmtoken",
+
+              # is a xs:string
+              'ext-dtype' => "example",
+
+              # is a xs:string
+              meaning => "example",
+
+              # is a xs:string
+              formatid => "example",
+
+              # is a xs:NMTOKEN
+              # Enum: default need-to-know private public
+              restriction => "nmtoken",
+
+              # mixed content cannot be processed automatically
+              _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+          # is a xs:NMTOKEN
+          # attribute restriction has default
+          # Enum: default need-to-know private public
+          restriction => "nmtoken", }, ],
+
+      # is optional
+      History =>
+      { # sequence of HistoryItem
+
+        # occurs 1 <= # <= unbounded times
+        HistoryItem =>
+        [ { # sequence of DateTime, IncidentID, Contact, Description,
+            #   AdditionalData
+
+            # is a xs:dateTime
+            DateTime => "2006-10-06T00:23:02Z",
+
+            # IncidentID is simple value with attributes
+            # is optional
+            IncidentID =>
+            { # is a xs:string
+              # attribute name is required
+              name => "example",
+
+              # is a xs:string
+              instance => "example",
+
+              # is a xs:NMTOKEN
+              # attribute restriction has default
+              # Enum: default need-to-know private public
+              restriction => "nmtoken",
+
+              # string content of the container
+              _ => "Hello, World!", },
+
+            # complex structure shown above
+            # is optional
+            Contact => {},
+
+            # Description is simple value with attributes
+            # occurs any number of times
+            Description =>
+            [ { # is a xs:language
+                lang => "nl-NL",
+
+                # string content of the container
+                _ => "Hello, World!", }, ],
+
+            # AdditionalData has a mixed content
+            # occurs any number of times
+            AdditionalData =>
+            [ { # is a xs:NMTOKEN
+                # attribute dtype is required
+                # Enum: boolean byte character csv date-time ext-value
+                #    file frame integer ipv4-packet ipv6-packet ntpstamp
+                #    packet path portlist real string url winreg xml
+                dtype => "nmtoken",
+
+                # is a xs:string
+                'ext-dtype' => "example",
+
+                # is a xs:string
+                meaning => "example",
+
+                # is a xs:string
+                formatid => "example",
+
+                # is a xs:NMTOKEN
+                # Enum: default need-to-know private public
+                restriction => "nmtoken",
+
+                # mixed content cannot be processed automatically
+                _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+            # is a xs:NMTOKEN
+            # Enum: default need-to-know private public
+            restriction => "nmtoken",
+
+            # is a xs:NMTOKEN
+            # attribute action is required
+            # Enum: block-host block-network block-port contact-sender
+            #    contact-source-site contact-target-site ext-value
+            #    investigate nothing other rate-limit-host
+            #    rate-limit-network rate-limit-port remediate-other
+            #    status-new-info status-triage
+            action => "nmtoken",
+
+            # is a xs:string
+            'ext-action' => "example", }, ],
+
+        # is a xs:NMTOKEN
+        # attribute restriction has default
+        # Enum: default need-to-know private public
+        restriction => "nmtoken", },
+
+      # AdditionalData has a mixed content
+      # occurs any number of times
+      AdditionalData =>
+      [ { # is a xs:NMTOKEN
+          # attribute dtype is required
+          # Enum: boolean byte character csv date-time ext-value
+          #    file frame integer ipv4-packet ipv6-packet ntpstamp
+          #    packet path portlist real string url winreg xml
+          dtype => "nmtoken",
+
+          # is a xs:string
+          'ext-dtype' => "example",
+
+          # is a xs:string
+          meaning => "example",
+
+          # is a xs:string
+          formatid => "example",
+
+          # is a xs:NMTOKEN
+          # Enum: default need-to-know private public
+          restriction => "nmtoken",
+
+          # mixed content cannot be processed automatically
+          _ => XML::LibXML::Element->new('AdditionalData'), }, ],
+
+      # is a xs:NMTOKEN
+      # attribute purpose is required
+      # Enum: ext-value mitigation other reporting traceback
+      purpose => "nmtoken",
+
+      # is a xs:string
+      'ext-purpose' => "example",
+
+      # is a xs:language
+      lang => "nl-NL",
+
+      # is a xs:NMTOKEN
+      # attribute restriction has default
+      # Enum: default need-to-know private public
+      restriction => "nmtoken", }, ],
+
+  # attribute version is fixed
+  version => 1.00,
+
+  # is a xs:language
+  # attribute lang is required
+  lang => "nl-NL",
+
+  # is a xs:string
+  formatid => "example", }
+

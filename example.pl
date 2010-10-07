@@ -2,6 +2,7 @@
 
 use strict;
 
+use lib './lib';
 use XML::IODEF;
 
 my $h = {
@@ -84,5 +85,5 @@ my $h = {
 
 };
 
-my $iodef = XML::IODEF->new($h);
-print $iodef->out(1)."\n";
+my $iodef = XML::IODEF->new();
+print $iodef->out($h,1)."\n";
