@@ -4,7 +4,7 @@ use 5.008008;
 use strict;
 use warnings;
 
-our $VERSION = '0.11_2';
+our $VERSION = '0.11_3';
 
 use XML::Compile::Schema;
 use XML::Compile::Util qw/pack_type/;
@@ -31,7 +31,7 @@ sub new {
 sub out {
     my $self 	= shift;
     my $hash    = shift;
-    my $pretty  = shift; 
+    my $pretty  = shift || 0; 
     my $doc     = XML::LibXML::Document->new('1.0', 'UTF-8');
     my $xml     = $self->writer->($doc, $hash);
     return $xml->toString($pretty);
