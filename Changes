@@ -1,9 +1,11 @@
 Revision history for Perl extension XML::IODEF
 
-0.11_1  2010-10-01
-    - rebuilt with XML::Compile::Schema for simplicity and speed
+0.11   2011-05-14
+    - cleaned up Makefile.PL
+    - added to_tree function which should deprecate to_hash
+    - fixed a few minor bugs in test.pl
 
-0.08    2010-06-05
+0.08   2010-06-05
     - fixed missing Makefile.PL deps
     - fixed minor test.pl (make test) bugs due to changes in RFC 5070 format
 
